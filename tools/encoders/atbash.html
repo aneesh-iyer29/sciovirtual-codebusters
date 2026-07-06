@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Atbash Cipher Generator</title>
+  <link rel="stylesheet" href="cipherstyle.css">
+</head>
+<body>
+  <h1>Atbash Encoder</h1>
+  <form id="cipherForm" onsubmit="event.preventDefault(); generateCipher();">
+    <label>
+      Question Text:
+      <textarea id="qtext" required>Decode this phrase that was encoded using the Atbash cipher.</textarea>
+    </label>
+
+    <label>
+      Plaintext:
+      <textarea id="plaintext" required></textarea>
+    </label>
+
+    <label>
+      Value:
+      <input type="number" id="value" value="250" required>
+    </label>
+
+    <label>
+      Block Size:
+      <input type="number" id="blocksize" value="5" required>
+    </label>
+
+    <label>
+      Reveal Keyword (optional):
+      <input type="text" id="revealKeyword">
+    </label>
+
+    <button type="submit">Generate</button>
+  </form>
+
+  <div class="divider"></div>
+
+  <div class="preview">
+  <h2>Preview</h2>
+  <div id="cipherOutput" class="cipher"></div>
+  <div id="plainOutput" class="plain"></div>
+  </div>
+
+
+  <div class="divider"></div>
+
+  <div class="output">
+    <h2>LaTeX Output</h2>
+    <textarea id="latexOutput" readonly></textarea>
+    <button onclick="downloadLatex()">Download LaTeX</button>
+  </div>
+
+  <script src="embed-output.js"></script>
+  <script>
+    function atbash(text) {
+      const cleanedText = text.toUpperCase().replace(/[^A-Z]/g, '');
+      const reverseMapping = {};
+      for (let i = 0; i < 26; i++) {
+        reverseMapping[String.fromCharCode(65 + i)] = String.fromCharCode(90 - i);
+      }
+      return cleanedText.split('').map(char => reverseMapping[char] || char).join('');
+    }
+
+    function aristoFormatSentence(s) {
+      let words = s.split(/\s+/);
+      let formatted = "", line = "", len = 0;
+      for (let word of words) {
+        if (len + word.length + 1 > 52) {
+          formatted += line.trim() + "\n\n\n";
+          line = word + " ";
+          len = word.length + 1;
+        } else {
+          line += word + " ";
+          len += word.length + 1;
+        }
+      }
+      formatted += line.trim();
+      return formatted;
+    }
+    
+    function atbashEncoder(text, bs, value, qtext) {
+      const t = atbash(text);
+      let v = "";
+      for (let i = 0; i < t.length; i++) {
+        v += t[i];
+        if ((i + 1) % bs === 0) {
+          v += " ";
+        }
+      }
+      v = v.trim();
+
+      const qtextSplit = qtext.split(" ");
+      const atbashIndex = qtextSplit.indexOf("Atbash");
+      if (atbashIndex !== -1) {
+        qtextSplit[atbashIndex] = "\\textbf{Atbash}";
+      }
+      qtext = qtextSplit.join(" ");
+
+      const result = [];
+      result.push(`\\normalsize \\question[${value}] ${qtext}`);
+      result.push("\\Large{");
+      result.push("\\begin{verbatim}");
+      result.push(aristoFormatSentence(v));
+      result.push("\\end{verbatim}}");
+      result.push("\\vfill");
+      result.push("\\uplevel{\\hrulefill}");
+
+      return result.join("\n");
+    }
+
+    async function generateCipher() {
+      const qtext = document.getElementById('qtext').value;
+      const s = document.getElementById('plaintext').value;
+      const value = document.getElementById('value').value;
+      const bs = parseInt(document.getElementById('blocksize').value) || 5;
+      const revealKeyword = document.getElementById('revealKeyword').value;
+
+      // Generate LaTeX
+      const latex = atbashEncoder(s, bs, value, qtext);
+
+      // Generate Cipher Text for preview
+      const cipherText = atbash(s);
+      let formattedCipher = "";
+      for (let i = 0; i < cipherText.length; i++) {
+        formattedCipher += cipherText[i];
+        if ((i + 1) % bs === 0) {
+          formattedCipher += " ";
+        }
+      }
+      formattedCipher = formattedCipher.trim();
+      await setLatexOrEmbedOutput("latexOutput", revealKeyword, "aristocrat", {
+        cipherType: "Aristocrat",
+        aristoType: "Atbash",
+        questionText: questionTextWithValue(value, qtext),
+        cipherText: aristoFormatSentence(formattedCipher),
+        correctAnswer: lettersOnlyAnswer(s)
+      }, latex);
+      
+      const cipherHTML = "<pre>" + aristoFormatSentence(formattedCipher) + "</pre>";
+      document.getElementById('cipherOutput').innerHTML = cipherHTML;
+      
+      const plainHTML = "<pre>" + s.toUpperCase().replace(/[^A-Z]/g, " ") + "</pre>";
+      document.getElementById('plainOutput').innerHTML = plainHTML;
+    }
+
+    function downloadLatex() {
+      const text = document.getElementById('latexOutput').value;
+      const blob = new Blob([text], {type: "text/plain"});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = "cipher.tex";
+      a.click();
+    }
+  </script>
+</body>
+</html>

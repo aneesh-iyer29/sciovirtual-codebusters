@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Embed Encoder</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --border: #d6d9df;
+      --muted: #5f6b7a;
+      --panel: #ffffff;
+      --page: #f5f7fb;
+      --primary: #1d4ed8;
+      --primary-dark: #1e40af;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--page);
+      color: #172033;
+    }
+
+    main {
+      width: min(1100px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 32px;
+    }
+
+    .intro {
+      margin: 0 0 24px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(320px, 420px) 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+      padding: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font: inherit;
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field-note {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 11px 16px;
+      font: inherit;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .primary-button {
+      background: var(--primary);
+      color: white;
+    }
+
+    .primary-button:hover {
+      background: var(--primary-dark);
+    }
+
+    .secondary-button {
+      background: #e8edf5;
+      color: #172033;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    #embedOutput {
+      min-height: 520px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 13px;
+      line-height: 1.45;
+      white-space: pre;
+    }
+
+    .status {
+      min-height: 20px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .error {
+      color: #b91c1c;
+    }
+
+    @media (max-width: 820px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Embed Encoder</h1>
+    <p class="intro">
+      Choose a cipher, enter the values for that page's <code>defaultData</code>, then copy the generated iframe code.
+      This page does not display the embed.
+    </p>
+
+    <div class="layout">
+      <section class="panel" aria-labelledby="formHeading">
+        <h2 id="formHeading">Cipher Data</h2>
+
+        <div class="field">
+          <label for="cipherPage">Cipher</label>
+          <select id="cipherPage"></select>
+        </div>
+
+        <div class="field">
+          <label for="questionText">Question Text</label>
+          <textarea id="questionText" placeholder="Enter the prompt students should see"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="cipherText">Cipher Text</label>
+          <textarea id="cipherText" placeholder="Enter the encoded text"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="correctAnswer">Correct Answer</label>
+          <textarea id="correctAnswer" placeholder="Enter the plaintext answer"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="revealKeyword">Reveal Keyword</label>
+          <input id="revealKeyword" type="text" placeholder="Shown after a correct answer">
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="aristoType">Aristo Type</label>
+            <select id="aristoType">
+              <option value="K1">K1</option>
+              <option value="K2">K2</option>
+              <option value="Normal">Normal</option>
+            </select>
+            <div class="field-note">Used by pages that include <code>aristoType</code>; ignored by others.</div>
+          </div>
+
+          <div class="field">
+            <label for="embedHeight">Embed Height</label>
+            <input id="embedHeight" type="number" min="300" step="50" value="750">
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button class="primary-button" id="generateButton" type="button">Generate Embed Code</button>
+          <button class="secondary-button" id="loadSampleButton" type="button">Load Sample Data</button>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="outputHeading">
+        <h2 id="outputHeading">Copy-Paste Embed</h2>
+        <div class="field">
+          <label for="embedOutput">Generated Code</label>
+          <textarea id="embedOutput" readonly placeholder="Your embed code will appear here after generating."></textarea>
+        </div>
+        <div class="button-row">
+          <button class="primary-button" id="copyButton" type="button">Copy Code</button>
+          <button class="secondary-button" id="clearButton" type="button">Clear</button>
+        </div>
+        <div id="status" class="status" role="status" aria-live="polite"></div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const cipherPages = [
+      {
+        label: "Affine",
+        file: "affine.html",
+        cipherType: "Affine",
+        aristoType: "K2",
+        questionText: "[160] Upon searching a room, the following were found on scraps of paper. You realize it's encoded as an Affine with a=15 and b=2. What does it say?",
+        cipherText: "D C A M B K X M C X K C R S O V K C L R Q B O Q S P K C T S O M C X K A Q G D R S O O K X",
+        correctAnswer: "HAMSTERS ARE A BIG DEAL BUT GUINEA PIGS ARE MUCH BIGGER",
+        revealKeyword: "LIFESTYLE"
+      },
+      {
+        label: "Aristocrat",
+        file: "aristocrat.html",
+        cipherType: "Aristocrat",
+        aristoType: "K1",
+        questionText: "[253] Solve this quote that has been encoded using the Aristocrat Cipher using a K1 alphabet. What does it say?",
+        cipherText: "QGA BESBLQBFA MX GBSYLF NAMNJA JABZL GMT QM MNAL EMMZP YP QGBQ QGAV EML'Q LAAE AJADQZYDYQV QM FAQ MRQ MX B ZMMK.",
+        correctAnswer: "THE ADVANTAGE OF HAVING PEOPLE LEARN HOW TO OPEN DOORS IS THAT THEY DON'T NEED ELECTRICITY TO GET OUT OF A ROOM.",
+        revealKeyword: "AEROSPACE | BONUS: First team to message Aneesh the keyword gets bonus points!"
+      },
+      {
+        label: "Baconian",
+        file: "baconian.html",
+        cipherType: "Baconian",
+        aristoType: "K2",
+        questionText: "[201] The following symbols encode a phrase using a Baconian alphabet. What does it say?",
+        cipherText: "0512340123460781234019523460123784091253406123748019253460123478012934056127348012349015234601237840129534016728935460123784012953640178239450167289534601234078912534067819234056123478091235",
+        correctAnswer: "i am an intelligent being doing stupid things",
+        revealKeyword: "BACON"
+      },
+      {
+        label: "Checkerboard",
+        file: "checkerboard.html",
+        cipherType: "Nihilist",
+        questionText: "Solve this quote that has been encoded using the Checkerboard Cipher. The 34th through 39th cipher units (DI MN MO CR EI CN) decode to be HERWAY. What does it say?",
+        cipherText: "INDIMNCRDY DOEIDNMOEI DNMRDNINDY DIMNMOMIIY INIYMOMNDI IYIOMYEIDN ENDYDNDIMN MOCREICNIN DYCRDYMODR",
+        correctAnswer: "The woman ran into her future husband on her way to work",
+        revealKeyword: "PLUNGER"
+      },
+      {
+        label: "Fractionated Morse",
+        file: "fractionatedmorse.html",
+        cipherType: "Fractionated Morse",
+        aristoType: "Normal",
+        questionText: "You came across the following written on a wall in a cave. You notice that it's encoded as a Fractionated Morse. You are told that the quote has ONLY in it corresponding to the encoded text Z L I S D H Z, meaning D = ●×–; H = ●––; I = –●×; L = ––×; S = ●–●; Z = ××–. What does it say?",
+        cipherText: "M  T  U  V  C  P  B  A  S  E  F  W  M  P  D  E  O  F  C  M  I  J  Q  P  V  Y  D  Z  L  I  S  D  H  Z  T  Q  C  Q  V  M  A  V  L  K  P  M  I  P  A  C  M  I  O ",
+        correctAnswer: "the devil doesn't bargain, it only breaks your heart",
+        revealKeyword: "math"
+      },
+      {
+        label: "Hill",
+        file: "hill.html",
+        cipherType: "Porta",
+        aristoType: "K2",
+        questionText: "[220] A message encrypted with a keyword of LAMB with the Hill cipher has been received. What does it say?",
+        cipherText: "QK ZU YX KK AS MV SN DQ WG AL WM NC SL BT",
+        correctAnswer: "school is a superficial concept",
+        revealKeyword: "BORED"
+      },
+      {
+        label: "Nihilist",
+        file: "nihilist.html",
+        cipherType: "Nihilist",
+        questionText: "Decode this phrase that was encoded using the Nihilist Substitution cipher with a keyword between 3 and 7 letters long inclusive. You are told that the plaintext begins with THE RESEARCH.",
+        cipherText: "47467254555672336737752239537235 78355624384392423856662355536423 683585236834623379248244",
+        correctAnswer: "THE RESEARCH DONE BY TOP LEVEL SCIENTISTS IS AMAZING",
+        revealKeyword: "wow this was so cool"
+      },
+      {
+        label: "Porta",
+        file: "porta.html",
+        cipherType: "Porta",
+        aristoType: "K2",
+        questionText: "[142] Upon searching a room, the following were found on scraps of paper. You realize it's encoded as a Porta using a keyword of KNIGHT. What does it say?",
+        cipherText: "WCVBIZ SFZGQT WBLQKZ NMCQBK BISBUW PBLOLE WRHYCW RTJGYK ZIDDOF DX",
+        correctAnswer: "Every day I wake up, and I start to break up Lonely is a man without love",
+        revealKeyword: "ENGINEERING"
+      }
+    ];
+
+    const pageSelect = document.getElementById("cipherPage");
+    const fields = {
+      questionText: document.getElementById("questionText"),
+      cipherText: document.getElementById("cipherText"),
+      correctAnswer: document.getElementById("correctAnswer"),
+      revealKeyword: document.getElementById("revealKeyword"),
+      aristoType: document.getElementById("aristoType"),
+      embedHeight: document.getElementById("embedHeight")
+    };
+    const output = document.getElementById("embedOutput");
+    const status = document.getElementById("status");
+
+    cipherPages.forEach((page, index) => {
+      const option = document.createElement("option");
+      option.value = String(index);
+      option.textContent = page.label;
+      pageSelect.appendChild(option);
+    });
+
+    const selectedPage = () => cipherPages[Number(pageSelect.value)];
+
+    const setStatus = (message, isError = false) => {
+      status.textContent = message;
+      status.classList.toggle("error", isError);
+    };
+
+    const loadSampleData = () => {
+      const page = selectedPage();
+      fields.questionText.value = page.questionText || "";
+      fields.cipherText.value = page.cipherText || "";
+      fields.correctAnswer.value = page.correctAnswer || "";
+      fields.revealKeyword.value = page.revealKeyword || "";
+      fields.aristoType.value = page.aristoType || "K2";
+      output.value = "";
+      setStatus("");
+    };
+
+    const currentDefaultData = () => {
+      const page = selectedPage();
+      const data = {
+        cipherType: page.cipherType,
+        questionText: fields.questionText.value,
+        cipherText: fields.cipherText.value,
+        correctAnswer: fields.correctAnswer.value,
+        revealKeyword: fields.revealKeyword.value
+      };
+
+      if (page.aristoType !== undefined) {
+        data.aristoType = fields.aristoType.value;
+      }
+
+      return data;
+    };
+
+    const replaceDefaultData = (source, data) => {
+      const replacement = `const defaultData = ${JSON.stringify(data, null, 6)};`;
+      const defaultDataPattern = /const defaultData = \{[\s\S]*?\n\s*\};/;
+
+      if (!defaultDataPattern.test(source)) {
+        throw new Error("Could not find a defaultData block in the selected cipher page.");
+      }
+
+      return source.replace(defaultDataPattern, replacement);
+    };
+
+    const escapeAttribute = value => value
+      .replace(/&/g, "&amp;")
+      .replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+
+    const makeIframeCode = (html, page, height) => {
+      const title = `${page.label} Cipher Practice`;
+      return `<iframe
+  title="${escapeAttribute(title)}"
+  style="width: 100%; min-height: ${height}px; border: 0;"
+  sandbox="allow-scripts"
+  srcdoc="${escapeAttribute(html)}">
+</iframe>`;
+    };
+
+    const generateEmbed = async () => {
+      const page = selectedPage();
+      const height = Math.max(Number(fields.embedHeight.value) || 750, 300);
+
+      setStatus(`Generating from ${page.file}...`);
+
+      try {
+        const response = await fetch(page.file);
+        if (!response.ok) {
+          throw new Error(`Could not load ${page.file}.`);
+        }
+
+        const source = await response.text();
+        const html = replaceDefaultData(source, currentDefaultData());
+        output.value = makeIframeCode(html, page, height);
+        setStatus("Embed code generated. Use Copy Code to copy it.");
+      } catch (error) {
+        output.value = "";
+        setStatus(`${error.message} If you opened this from a file path, try using a local server or the hosted site.`, true);
+      }
+    };
+
+    const copyOutput = async () => {
+      if (!output.value) {
+        setStatus("Generate embed code before copying.", true);
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(output.value);
+        setStatus("Copied embed code to clipboard.");
+      } catch (error) {
+        output.focus();
+        output.select();
+        document.execCommand("copy");
+        setStatus("Copied embed code to clipboard.");
+      }
+    };
+
+    pageSelect.addEventListener("change", loadSampleData);
+    document.getElementById("loadSampleButton").addEventListener("click", loadSampleData);
+    document.getElementById("generateButton").addEventListener("click", generateEmbed);
+    document.getElementById("copyButton").addEventListener("click", copyOutput);
+    document.getElementById("clearButton").addEventListener("click", () => {
+      output.value = "";
+      setStatus("");
+    });
+
+    loadSampleData();
+  </script>
+</body>
+</html>

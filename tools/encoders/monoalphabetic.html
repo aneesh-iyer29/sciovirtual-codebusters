@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Monoalphabetic Cipher Generator</title>
+  <link rel="stylesheet" href="cipherstyle.css">  
+</head>
+<body>
+  <h1>Aristocrat/Patristocrat Encoder</h1>
+  <form id="cipherForm" onsubmit="event.preventDefault(); generateCipher();">
+    <label>
+      Question Text:
+      <textarea id="qtext" required>Solve this Aristocrat.</textarea>
+    </label>
+
+    <label>
+      Plaintext:
+      <textarea id="plaintext" required></textarea>
+    </label>
+
+    <label>
+      Value:
+      <input type="number" id="value" value="250" required>
+    </label>
+
+    <label>
+      Type:
+      <select id="type">
+        <option>Aristocrat</option>
+        <option>Patristocrat</option>
+      </select>
+    </label>
+
+    <label>
+      Alphabet (blank, K1, K2, K3):
+      <input type="text" id="alph">
+    </label>
+
+    <label>
+      Keyword:
+      <input type="text" id="keyword">
+    </label>
+
+    <label>
+      Reveal Keyword (optional):
+      <input type="text" id="revealKeyword">
+    </label>
+
+    <label>
+      Shift:
+      <input type="number" id="shift" value="0">
+    </label>
+
+    <label>
+      Extract keyword?
+      <input type="checkbox" id="extract">
+    </label>
+
+    <button type="submit">Generate</button>
+  </form>
+
+  <div class="divider"></div>
+
+  <div class="preview">
+  <h2>Preview</h2>
+  <div id="cipherOutput" class="cipher"></div>
+  <div id="plainOutput" class="plain"></div>
+  <div id="freqTable" class="freq"></div>
+  </div>
+
+
+  <div class="divider"></div>
+
+  <div class="output">
+    <h2>LaTeX Output</h2>
+    <textarea id="latexOutput" readonly></textarea>
+    <button onclick="downloadLatex()">Download LaTeX</button>
+  </div>
+
+  <script src="embed-output.js"></script>
+  <script>
+    function derangement(arr) {
+      let result, tries = 0;
+      do {
+        result = arr.slice();
+        for (let i = result.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [result[i], result[j]] = [result[j], result[i]];
+        }
+        tries++;
+        if (tries > 1000) break;
+      } while (result.some((x, i) => x === arr[i]));
+      return result;
+    }
+    function randomizeStringNoSamePosition(alphabet) {
+      return derangement(alphabet.split('')).join('');
+    }
+    function processWord(word, shift) {
+      let seen = new Set();
+      let unique = [];
+      word = word.toLowerCase().replace(/ /g, "");
+      for (let c of word) if (!seen.has(c)) { unique.push(c); seen.add(c); }
+      let alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
+      let unused = alphabet.filter(c => !seen.has(c));
+      let result = unique.concat(unused).join('');
+      shift = shift % result.length;
+      return result.slice(-shift) + result.slice(0, -shift);
+    }
+    function aristoLetterReplacement(s, keyword, shift, alph) {
+      let alphabetUpper, replacementAlphabet;
+      if (!alph) {
+        alphabetUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        replacementAlphabet = randomizeStringNoSamePosition(alphabetUpper);
+      } else if (alph === "K2") {
+        alphabetUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        replacementAlphabet = processWord(keyword, shift).toUpperCase();
+      } else if (alph === "K1") {
+        alphabetUpper = processWord(keyword, shift).toUpperCase();
+        replacementAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      } else if (alph === "K3"){
+        alphabetUpper = processWord(keyword, 0).toUpperCase();
+        replacementAlphabet = processWord(keyword, shift).toUpperCase();
+      }
+      let table = {};
+      for (let i = 0; i < 26; i++) table[alphabetUpper[i]] = replacementAlphabet[i];
+      return s.toUpperCase().split('').map(c => table[c] || c).join('');
+    }
+    function aristoFormatSentence(s) {
+      let words = s.split(/\s+/);
+      let formatted = "", line = "", len = 0;
+      for (let word of words) {
+        if (len + word.length + 1 > 52) {
+          formatted += line.trim() + "\n\n\n";
+          line = word + " ";
+          len = word.length + 1;
+        } else {
+          line += word + " ";
+          len += word.length + 1;
+        }
+      }
+      formatted += line.trim();
+      return formatted;
+    }
+    function patFormatSentence(s) {
+      let q = s.replace(/[^a-zA-Z]/g, "");
+      let out = "";
+      for (let i = 0; i < q.length; i++) {
+        out += q[i];
+        if (i % 5 === 4) out += " ";
+      }
+      let words = out.trim().split(/\s+/);
+      let formatted = "", line = "", len = 0;
+      for (let word of words) {
+        if (len + word.length + 1 > 52) {
+          formatted += line.trim() + "\n\n\n";
+          line = word + " ";
+          len = word.length + 1;
+        } else {
+          line += word + " ";
+          len += word.length + 1;
+        }
+      }
+      formatted += line.trim();
+      return formatted;
+    }
+    function aristoFrequencyTable(ct, alph) {
+      let o = "";
+      if (alph === "K2") {
+        o += 'Replacement';
+        for (let i = 0; i < 26; i++) o += '&';
+        o += '\\\\\n\\hline \nK2';
+        for (let i = 0; i < 26; i++) o += '&' + String.fromCharCode(i + 65);
+        o += '\\\\\n\\hline \nFrequency';
+        for (let i = 0; i < 26; i++) o += '&' + (ct.match(new RegExp(String.fromCharCode(i + 65), "g")) || []).length;
+        o += '\\\\';
+        return o;
+      } else {
+        o += alph;
+        for (let i = 0; i < 26; i++) o += '&' + String.fromCharCode(i + 65);
+        o += '\\\\\n\\hline \nFrequency';
+        for (let i = 0; i < 26; i++) o += '&' + (ct.match(new RegExp(String.fromCharCode(i + 65), "g")) || []).length;
+        o += '\\\\\n\\hline \nReplacement';
+        for (let i = 0; i < 26; i++) o += '&';
+        o += '\\\\';
+        return o;
+      }
+    }
+    function monoalphCreator(qtext, s, value, type, alph, keyword, shift, extract) {
+      text = qtext.split(" ");
+      if (type === "Aristocrat"){
+      let index = text.indexOf("Aristocrat");
+        text[index] = "\\textbf{Aristocrat}";
+      }
+      else {
+        let index = text.indexOf("Patristocrat");
+        text[index] = "\\textbf{Patristocrat}";
+      }
+      qtext = text.join(" ");
+      let replaced = aristoLetterReplacement(s, keyword, shift, alph);
+      let formatted = type === "Aristocrat" ? aristoFormatSentence(replaced) : patFormatSentence(replaced.replace(/[^a-zA-Z]/g, ""));
+      let table = aristoFrequencyTable(replaced.replace(/[^a-zA-Z]/g, ""), alph);
+      let alphStr = alph ? alph + " " : "";
+      let v = "\\normalsize \\question[" + value + "] " + qtext;
+      v += "\n\\Large{\n\\begin{verbatim}\n" + formatted + "\n\\end{verbatim}}\n";
+      v += "{\\normalsize\n\\begin{center}\n\\begin{tabular}\n";
+      v += "{|m{2cm}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|}\n";
+      v += "\\hline\n" + table + "\n\\hline\n\\end{tabular}\n\\end{center}}\n\\vfill\n\\uplevel{\\hrulefill}\n";
+      return v;
+    }
+    async function generateCipher() {
+      const qtext = document.getElementById('qtext').value;
+      const s = document.getElementById('plaintext').value;
+      const value = document.getElementById('value').value;
+      const type = document.getElementById('type').value;
+      const alph = document.getElementById('alph').value;
+      const keyword = document.getElementById('keyword').value;
+      const revealKeyword = document.getElementById('revealKeyword').value;
+      const shift = parseInt(document.getElementById('shift').value) || 0;
+      const extract = document.getElementById('extract').checked;
+
+      // Generate LaTeX
+      const latex = monoalphCreator(qtext, s, value, type, alph, keyword, shift, extract);
+
+      // Generate Cipher Text
+      let replaced = aristoLetterReplacement(s, keyword, shift, alph);
+      let formatted = type === "Aristocrat" ? aristoFormatSentence(replaced) : patFormatSentence(replaced.replace(/[^a-zA-Z]/g, ""));
+      await setLatexOrEmbedOutput("latexOutput", revealKeyword, "aristocrat", {
+        cipherType: "Aristocrat",
+        aristoType: alph || "Normal",
+        questionText: questionTextWithValue(value, qtext),
+        cipherText: formatted,
+        correctAnswer: type === "Aristocrat" ? s.toUpperCase() : lettersOnlyAnswer(s)
+      }, latex);
+      
+      // Insert into preview
+      let cipherHTML = "<pre>" + formatted + "</pre>";
+      let plainHTML = "<pre>" + replaced.replace(/[^A-Z]/g," ") + "</pre>"; 
+      // ensures same spacing & alignment
+
+      document.getElementById('cipherOutput').innerHTML = cipherHTML;
+      document.getElementById('plainOutput').innerHTML = plainHTML;
+
+
+      // Frequency table (simple HTML version)
+      let freq = "<table border='1' cellpadding='5'><tr><th>Letter</th>";
+      for (let i=0; i<26; i++) freq += "<td>" + String.fromCharCode(65+i) + "</td>";
+      freq += "</tr><tr><th>Frequency</th>";
+      for (let i=0; i<26; i++) {
+        let count = (replaced.match(new RegExp(String.fromCharCode(65+i),"g")) || []).length;
+        freq += "<td>" + count + "</td>";
+      }
+      freq += "</tr><tr><th>Replacement</th>";
+      let mapping = {};
+      let alphaUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      let replAlpha = processWord(keyword, shift).toUpperCase();
+      if (!alph) replAlpha = randomizeStringNoSamePosition(alphaUpper);
+      for (let i=0;i<26;i++) mapping[alphaUpper[i]] = replAlpha[i];
+      for (let i=0;i<26;i++) freq += "<td>" + mapping[alphaUpper[i]] + "</td>";
+      freq += "</tr></table>";
+
+      document.getElementById('freqTable').innerHTML = freq;
+    }
+
+    function downloadLatex() {
+      const text = document.getElementById('latexOutput').value;
+      const blob = new Blob([text], {type: "text/plain"});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = "cipher.tex";
+      a.click();
+    }
+  </script>
+</body>
+</html>

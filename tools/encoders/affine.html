@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Affine Cipher Generator</title>
+<link rel="stylesheet" href="cipherstyle.css">
+</head>
+<body>
+
+<h1>Affine Cipher Generator</h1>
+
+<form id="affineForm" onsubmit="event.preventDefault(); generateAffineCipher();">
+  <label>
+    Question Text:
+    <textarea id="qtext">Decode this Affine cipher.</textarea>
+  </label>
+  <label>
+    Plaintext:
+    <textarea id="plaintext" required></textarea>
+  </label>
+  <label>
+    a value:
+    <input type="number" id="a" value="5" required>
+  </label>
+  <label>
+    b value:
+    <input type="number" id="b" value="8" required>
+  </label>
+  <label>
+    Block size:
+    <input type="number" id="bs" value="5" required>
+  </label>
+  <label>
+    Value:
+    <input type="number" id="value" value="250" required>
+  </label>
+  <label>
+    Hint (optional):
+    <input type="text" id="hint">
+  </label>
+  <label>
+    Reveal Keyword (optional):
+    <input type="text" id="revealKeyword">
+  </label>
+  <button type="submit">Generate</button>
+</form>
+
+<div class="divider"></div>
+
+<div class="preview">
+  <h2>Preview</h2>
+  <div id="cipherOutput"><pre></pre></div>
+</div>
+
+<div class="divider"></div>
+
+<div class="output">
+  <h2>LaTeX Output</h2>
+  <textarea id="latexOutput" readonly rows="15"></textarea>
+  <button onclick="downloadLatex()">Download LaTeX</button>
+</div>
+
+<script src="embed-output.js"></script>
+<script>
+function affineEncode(s, a, b, bs){
+  s = s.toUpperCase().replace(/[^A-Z]/g,"");
+  let encoded = [];
+  for(let i=0; i<s.length; i++){
+    let val = ((s.charCodeAt(i) - 65)*a + b) % 26;
+    encoded.push(String.fromCharCode(val + 65));
+  }
+  // Add block spacing
+  let result = "";
+  for(let i=0;i<encoded.length;i++){
+    result += encoded[i];
+    if((i+1) % bs === 0) result += " ";
+  }
+  return result.trim();
+}
+
+function affineFormatSentence(s){
+  let words = s.split(" ");
+  let formatted = "";
+  let line = "";
+  let len = 0;
+  for(let word of words){
+    if(len + word.length + 1 > 52){
+      formatted += line.trim() + "\n\n\n";
+      line = word + " ";
+      len = word.length + 1;
+    } else {
+      line += word + " ";
+      len += word.length + 1;
+    }
+  }
+  formatted += line.trim();
+  return formatted;
+}
+
+async function generateAffineCipher(){
+  const qtext = document.getElementById("qtext").value;
+  const plaintext = document.getElementById("plaintext").value;
+  const a = parseInt(document.getElementById("a").value);
+  const b = parseInt(document.getElementById("b").value);
+  const bs = parseInt(document.getElementById("bs").value);
+  const value = document.getElementById("value").value;
+  const hint = document.getElementById("hint").value;
+  const revealKeyword = document.getElementById("revealKeyword").value;
+
+  const encoded = affineEncode(plaintext, a, b, bs);
+  const formatted = affineFormatSentence(encoded);
+
+  // Preview
+  document.getElementById("cipherOutput").innerHTML = "<pre>" + formatted + "</pre>";
+
+  // LaTeX output
+  let latex = [];
+  if(hint){
+    latex.push(`\\normalsize \\question[${value}] ${qtext} You are told that ${hint}`);
+  } else {
+    latex.push(`\\normalsize \\question[${value}] Decrypt this quote which was encoded using the \\textbf{Affine} cipher with a=${a}, b=${b}.`);
+  }
+  latex.push("\\Large{\\begin{verbatim}");
+  latex.push(formatted);
+  latex.push("\\end{verbatim}}");
+  latex.push("\\vfill \\uplevel{\\hrulefill}");
+
+  const embedQuestion = hint
+    ? `${qtext} You are told that ${hint}`
+    : `Decrypt this quote which was encoded using the Affine cipher with a=${a}, b=${b}.`;
+  await setLatexOrEmbedOutput("latexOutput", revealKeyword, "affine", {
+    cipherType: "Affine",
+    aristoType: "K2",
+    questionText: questionTextWithValue(value, embedQuestion),
+    cipherText: formatted,
+    correctAnswer: lettersOnlyAnswer(plaintext)
+  }, latex.join("\n"));
+}
+
+function downloadLatex(){
+  const text = document.getElementById("latexOutput").value;
+  const blob = new Blob([text], {type: "text/plain"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "affine_cipher.tex";
+  a.click();
+}
+</script>
+</body>
+</html>

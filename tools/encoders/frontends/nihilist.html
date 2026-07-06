@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Codebusters Practice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f9f9f9;
+    }
+
+    .label {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .word-group {
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: nowrap;
+    }
+
+    .char-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .char-box {
+      width: 35px;
+      height: 35px;
+      text-align: center;
+      font-size: 18px;
+      border: 1px solid #333;
+      text-transform: uppercase;
+      box-sizing: border-box;
+    }
+
+    .readonly {
+      background: #ddd;
+    }
+
+    .space-box {
+      background: #eee;
+      border: 1px solid #ccc;
+      pointer-events: none;
+    }
+
+    .button-container {
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+
+    .flex-wrap-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .char-box:focus {
+      outline: 2px solid gold;
+      background-color: #fffbe6;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="label" id="questionLabel"></div>
+  <div class="flex-wrap-container" id="gridContainer"></div>
+  <div id="frequencyTableContainer" style="margin-top: 30px;"></div>
+  <div id="grid6x6Container" style="margin-top: 20px;"></div>
+  <div class="button-container">
+    <button onclick="checkAnswer()">Check Answer</button>
+  </div>
+  <div id="resultMessage" style="margin-top: 10px; font-weight: bold;"></div>
+
+  <script>
+    const defaultData = {
+      cipherType: "Nihilist", // Change this to test other ciphers
+      questionText: "Decode this phrase that was encoded using the Nihilist Substitution cipher with a keyword between 3 and 7 letters long inclusive. You are told that the plaintext begins with THE RESEARCH.",
+      cipherText: "47467254555672336737752239537235 78355624384392423856662355536423 683585236834623379248244",
+      correctAnswer: "THE RESEARCH DONE BY TOP LEVEL SCIENTISTS IS AMAZING",
+      revealKeyword: "wow this was so cool"
+    };
+
+    let answerInputs = [];
+    let keywordInputs = [];
+    let grid6x6Inputs = [];
+
+    const buildPage = () => {
+      document.getElementById("questionLabel").innerText = defaultData.questionText;
+      const container = document.getElementById("gridContainer");
+      container.innerHTML = '';
+      answerInputs = [];
+      keywordInputs = [];
+
+      const showKeyword = ["Porta", "Hill", "Nihilist", "Checkerboard"].includes(defaultData.cipherType);
+      const isTwoDigit = ["Nihilist", "Checkerboard"].includes(defaultData.cipherType);
+      const words = defaultData.cipherText.trim().split(" ");
+
+      words.forEach(word => {
+        const wordDiv = document.createElement("div");
+        wordDiv.className = "word-group";
+
+        const units = isTwoDigit ? word.match(/.{1,2}/g) : word.split('');
+
+        units.forEach(unit => {
+          const charGroup = document.createElement("div");
+          charGroup.className = "char-group";
+
+          // Top row (keyword)
+          if (showKeyword) {
+            const kwBox = createBox('', true, false, false, isTwoDigit);
+            keywordInputs.push(kwBox);
+            charGroup.appendChild(kwBox);
+          }
+
+          // Middle row (ciphertext)
+          const cipherBox = createBox(unit, false, false, true);
+          charGroup.appendChild(cipherBox);
+
+          // Bottom row (answer input, always single character)
+          const answerBox = createBox('', true, false, false, false);
+          answerInputs.push(answerBox);
+          charGroup.appendChild(answerBox);
+
+          wordDiv.appendChild(charGroup);
+        });
+
+        // Add space separator
+        const spaceGroup = document.createElement("div");
+        spaceGroup.className = "char-group";
+        if (showKeyword) spaceGroup.appendChild(createBox(' ', false, true));
+        spaceGroup.appendChild(createBox(' ', false, true));
+        spaceGroup.appendChild(createBox(' ', false, true));
+        wordDiv.appendChild(spaceGroup);
+
+        container.appendChild(wordDiv);
+      });
+
+      addCursorLogic(answerInputs);
+      addCursorLogic(keywordInputs);
+
+      if (defaultData.cipherType === "Aristocrat") {
+        showFrequencyTable(defaultData.cipherText);
+      }
+      // Add 6x6 grid for Nihilist and Checkerboard
+const grid6x6Div = document.getElementById("grid6x6Container");
+grid6x6Div.innerHTML = "";
+
+if (["Nihilist", "Checkerboard"].includes(defaultData.cipherType)) {
+  const grid = document.createElement("div");
+  grid.style.display = "grid";
+  grid.style.gridTemplateColumns = "repeat(6, 40px)";
+  grid.style.gap = "6px";
+  grid.style.marginTop = "10px";
+
+  grid6x6Inputs = [];
+
+  for (let i = 0; i < 36; i++) {
+    const cell = document.createElement("input");
+    cell.className = "char-box";
+    cell.maxLength = 1;
+    grid6x6Inputs.push(cell);
+    grid.appendChild(cell);
+  }
+
+  grid6x6Div.appendChild(grid);
+  addCursorLogic(grid6x6Inputs);
+}
+
+
+    };
+
+    const createBox = (ch, editable = false, isSpace = false, readonly = false, twoChar = false) => {
+      const input = document.createElement('input');
+      input.className = 'char-box';
+
+      if (isSpace || ch === ' ') {
+        input.value = ' ';
+        input.readOnly = true;
+        input.tabIndex = -1;
+        input.classList.add('space-box');
+      } else if (readonly) {
+        input.value = ch.toUpperCase();
+        input.readOnly = true;
+        input.classList.add('readonly');
+      } else if (editable) {
+        input.maxLength = twoChar ? 2 : 1;
+        input.value = '';
+      }
+
+      return input;
+    };
+
+   const addCursorLogic = (inputList) => {
+  inputList.forEach((input, idx) => {
+    input.addEventListener('beforeinput', (e) => {
+      if (e.inputType === 'insertText' && e.data) {
+        e.preventDefault();
+        // Replace full value for 1-char inputs, append otherwise
+        if (input.maxLength === 1) {
+          input.value = e.data.toUpperCase();
+          if (idx + 1 < inputList.length) {
+            inputList[idx + 1].focus();
+          }
+        } else {
+          input.value += e.data.toUpperCase();
+        }
+      }
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === "Backspace") {
+        e.preventDefault();
+        input.value = '';
+        if (idx + 1 < inputList.length) {
+          inputList[idx + 1].focus();
+        }
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        let prev = idx - 1;
+        while (prev >= 0 && inputList[prev].classList.contains("space-box")) prev--;
+        if (prev >= 0) inputList[prev].focus();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        let next = idx + 1;
+        while (next < inputList.length && inputList[next].classList.contains("space-box")) next++;
+        if (next < inputList.length) inputList[next].focus();
+      }
+    });
+  });
+};
+
+
+    const checkAnswer = () => {
+      const userAnswer = answerInputs
+        .filter(input => !input.classList.contains('space-box'))
+        .map(input => input.value.toUpperCase().trim())
+        .join('');
+
+      const correct = defaultData.correctAnswer.toUpperCase().replace(/\s+/g, '');
+
+      const resultDiv = document.getElementById("resultMessage");
+      if (userAnswer === correct) {
+        resultDiv.style.color = "green";
+        resultDiv.textContent = `✅ Correct! Keyword: ${defaultData.revealKeyword}`;
+      } else {
+        resultDiv.style.color = "red";
+        resultDiv.textContent = "❌ Incorrect. Try again.";
+      }
+    };
+
+    const showFrequencyTable = (cipherText) => {
+      const freq = {};
+      for (let i = 0; i < 26; i++) freq[String.fromCharCode(65 + i)] = 0;
+
+      for (const ch of cipherText.toUpperCase()) {
+        if (ch >= 'A' && ch <= 'Z') freq[ch]++;
+      }
+
+      const container = document.getElementById("frequencyTableContainer");
+      container.innerHTML = `
+        <table style="border-collapse: collapse; width: 100%; text-align: center;">
+          <tr>
+            ${Object.keys(freq).map(ch => `<th style="border: 1px solid #333; padding: 4px; background: #ccc;">${ch}</th>`).join('')}
+          </tr>
+          <tr>
+            ${Object.values(freq).map(count => `<td style="border: 1px solid #333; padding: 4px;">${count}</td>`).join('')}
+          </tr>
+        </table>
+      `;
+    };
+
+    window.addEventListener("DOMContentLoaded", buildPage);
+    window.addEventListener("resize", buildPage);
+  </script>
+
+</body>
+</html>

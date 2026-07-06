@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Codebusters Practice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f9f9f9;
+    }
+
+    .label {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .word-group {
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: nowrap;
+    }
+
+    .char-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .char-box {
+      width: 35px;
+      height: 35px;
+      text-align: center;
+      font-size: 18px;
+      border: 1px solid #333;
+      text-transform: uppercase;
+      box-sizing: border-box;
+    }
+
+    .readonly {
+      background: #ddd;
+    }
+
+    .space-box {
+      background: #eee;
+      border: 1px solid #ccc;
+      pointer-events: none;
+    }
+
+    .punct-box {
+      background: #f2f2f2;
+      pointer-events: none;
+    }
+
+    .button-container {
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+
+    .flex-wrap-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .char-box:focus {
+      outline: 2px solid gold;
+      background-color: #fffbe6;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="label" id="questionLabel"></div>
+  <div class="flex-wrap-container" id="gridContainer"></div>
+  <div id="frequencyTableContainer" style="margin-top: 30px;"></div>
+  <div class="button-container">
+    <button onclick="checkAnswer()">Check Answer</button>
+  </div>
+  <div id="resultMessage" style="margin-top: 10px; font-weight: bold;"></div>
+
+  <script>
+    const defaultData = {
+      cipherType: "Aristocrat",
+      aristoType: "K1", // Change to "K1" or "K2" here to switch types manually
+      questionText: "[253] Solve this quote that has been encoded using the Aristocrat Cipher using a K1 alphabet. What does it say?",
+      cipherText: "QGA BESBLQBFA MX GBSYLF NAMNJA JABZL GMT QM MNAL EMMZP YP QGBQ QGAV EML'Q LAAE AJADQZYDYQV QM FAQ MRQ MX B ZMMK.",
+      correctAnswer: "THE ADVANTAGE OF HAVING PEOPLE LEARN HOW TO OPEN DOORS IS THAT THEY DON'T NEED ELECTRICITY TO GET OUT OF A ROOM.",
+      revealKeyword: "AEROSPACE | BONUS: First team to message Aneesh the keyword gets bonus points!"
+    };
+
+    let answerInputs = [];
+    let keywordInputs = [];
+    let kInputs = [];
+
+    const buildPage = () => {
+      document.getElementById("questionLabel").innerText = defaultData.questionText;
+      const container = document.getElementById("gridContainer");
+      container.innerHTML = '';
+      answerInputs = [];
+      keywordInputs = [];
+      kInputs = [];
+
+      const showKeyword = ["Porta", "Hill", "Nihilist", "Checkerboard"].includes(defaultData.cipherType);
+      const words = defaultData.cipherText.trim().split(" ");
+
+      words.forEach(word => {
+        const wordDiv = document.createElement("div");
+        wordDiv.className = "word-group";
+
+        for (let i = 0; i < word.length; i++) {
+          const ch = word[i];
+          const charGroup = document.createElement("div");
+          charGroup.className = "char-group";
+
+          if (showKeyword) {
+            const kwBox = createBox('', true, false);
+            keywordInputs.push(kwBox);
+            charGroup.appendChild(kwBox);
+          }
+
+          const cipherBox = createBox(ch, false, false, true);
+          charGroup.appendChild(cipherBox);
+
+          if (/^[.,;:'!?]$/.test(ch)) {
+            const punctBox = createBox(ch, false, false, true);
+            punctBox.classList.add('punct-box');
+            punctBox.tabIndex = -1;
+            charGroup.appendChild(punctBox);
+          } else {
+            const answerBox = createBox('', true, false);
+            answerInputs.push(answerBox);
+            charGroup.appendChild(answerBox);
+          }
+
+          wordDiv.appendChild(charGroup);
+        }
+
+        const spaceGroup = document.createElement("div");
+        spaceGroup.className = "char-group";
+        if (showKeyword) spaceGroup.appendChild(createBox(' ', false, true));
+        spaceGroup.appendChild(createBox(' ', false, true));
+        spaceGroup.appendChild(createBox(' ', false, true));
+        wordDiv.appendChild(spaceGroup);
+
+        container.appendChild(wordDiv);
+      });
+
+      addCursorLogic(answerInputs);
+      addCursorLogic(keywordInputs);
+      addCursorLogic(kInputs);
+
+      if (defaultData.cipherType === "Aristocrat") {
+        showFrequencyTable(defaultData.cipherText);
+      }
+    };
+
+    const createBox = (ch, editable = false, isSpace = false, readonly = false) => {
+      const input = document.createElement('input');
+      input.className = 'char-box';
+
+      if (isSpace || ch === ' ') {
+        input.value = ' ';
+        input.readOnly = true;
+        input.tabIndex = -1;
+        input.classList.add('space-box');
+      } else if (readonly || /^[.,;:'!?]$/.test(ch)) {
+        input.value = ch.toUpperCase();
+        input.readOnly = true;
+        input.tabIndex = -1;
+        input.classList.add('readonly');
+        if (/^[.,;:'!?]$/.test(ch)) input.classList.add('punct-box');
+      } else if (editable) {
+        input.maxLength = 1;
+        input.value = '';
+      }
+
+      return input;
+    };
+
+    const addCursorLogic = (inputList) => {
+      inputList.forEach((input, idx) => {
+        input.addEventListener('beforeinput', (e) => {
+          if (e.inputType === 'insertText' && e.data) {
+            e.preventDefault();
+            input.value = e.data.toUpperCase();
+            let next = idx + 1;
+            while (next < inputList.length && inputList[next].readOnly) next++;
+            if (next < inputList.length) inputList[next].focus();
+          }
+        });
+
+        // Backspace: clear and move forward
+    input.addEventListener('keydown', (e) => {
+      if (e.key === "Backspace") {
+        e.preventDefault();
+        input.value = '';
+        if (idx + 1 < inputList.length) {
+          inputList[idx + 1].focus();
+        }
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        let prev = idx - 1;
+        while (prev >= 0 && inputList[prev].classList.contains("space-box")) prev--;
+        if (prev >= 0) inputList[prev].focus();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        let next = idx + 1;
+        while (next < inputList.length && inputList[next].classList.contains("space-box")) next++;
+        if (next < inputList.length) inputList[next].focus();
+      }
+    });
+
+      });
+    };
+
+    const checkAnswer = () => {
+      const userAnswer = Array.from(document.querySelectorAll(".char-group"))
+        .map(group => {
+          const input = group.children[group.children.length - 1];
+          return input.value.toUpperCase().trim();
+        }).join('');
+
+      const correct = defaultData.correctAnswer.toUpperCase().replace(/\s+/g, '');
+
+      const resultDiv = document.getElementById("resultMessage");
+      if (userAnswer === correct) {
+        resultDiv.style.color = "green";
+        resultDiv.textContent = `✅ Correct! Keyword: ${defaultData.revealKeyword}`;
+      } else {
+        resultDiv.style.color = "red";
+        resultDiv.textContent = "❌ Incorrect. Try again.";
+      }
+    };
+
+    const showFrequencyTable = (cipherText) => {
+      const freq = {};
+      for (let i = 0; i < 26; i++) {
+        freq[String.fromCharCode(65 + i)] = 0;
+      }
+
+      for (const ch of cipherText.toUpperCase()) {
+        if (ch >= 'A' && ch <= 'Z') {
+          freq[ch]++;
+        }
+      }
+
+      const aristoType = defaultData.aristoType;
+      const container = document.getElementById("frequencyTableContainer");
+      container.innerHTML = '';
+
+      const table = document.createElement("table");
+      table.style.cssText = "border-collapse: collapse; width: 100%; text-align: center;";
+
+      const headerRow = document.createElement("tr");
+      Object.keys(freq).forEach(ch => {
+        const th = document.createElement("th");
+        th.style.cssText = "border: 1px solid #333; padding: 4px; background: #ccc;";
+        th.textContent = ch;
+        headerRow.appendChild(th);
+      });
+
+      const countRow = document.createElement("tr");
+      Object.values(freq).forEach(count => {
+        const td = document.createElement("td");
+        td.style.cssText = "border: 1px solid #333; padding: 4px;";
+        td.textContent = count;
+        countRow.appendChild(td);
+      });
+
+      let kRow = document.createElement("tr");
+      Object.keys(freq).forEach(() => {
+        const td = document.createElement("td");
+        td.style.cssText = "border: 1px solid #333; padding: 4px; background: #eef;";
+        const input = document.createElement("input");
+        input.type = "text";
+        input.maxLength = 1;
+        input.style.cssText = "width: 25px; text-align: center; text-transform: uppercase;";
+        kInputs.push(input);
+        td.appendChild(input);
+        kRow.appendChild(td);
+      });
+
+      if (aristoType === "K1") {
+        table.appendChild(headerRow);
+        table.appendChild(countRow);
+        table.appendChild(kRow);
+      } else if (aristoType === "K2") {
+        table.appendChild(kRow);
+        table.appendChild(headerRow);
+        table.appendChild(countRow);
+      } else {
+        table.appendChild(headerRow);
+        table.appendChild(countRow);
+      }
+
+      container.appendChild(table);
+      addCursorLogic(kInputs);
+    };
+
+    window.addEventListener("DOMContentLoaded", buildPage);
+    window.addEventListener("resize", buildPage);
+  </script>
+</body>
+</html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Baconian Cipher Generator</title>
+  <link rel="stylesheet" href="cipherstyle.css">
+</head>
+<body>
+  <h1>Baconian Cipher Encoder</h1>
+  <form id="baconianForm" onsubmit="event.preventDefault(); generateBaconian();">
+    <label>
+      Question Text:
+      <textarea id="qtext" required>Decode this phrase that was encoded using the Baconian cipher.</textarea>
+    </label>
+    <label>
+      Plaintext:
+      <textarea id="plaintext" required></textarea>
+    </label>
+    <label>
+      Value:
+      <input type="number" id="value" value="100" required>
+    </label>
+    <label>
+      Set A Letters (e.g. abcdefghijklm):
+      <input type="text" id="setA" value="abcdefghijklm">
+    </label>
+    <label>
+      Set B Letters (e.g. nopqrstuvwxyz):
+      <input type="text" id="setB" value="nopqrstuvwxyz">
+    </label>
+    <label>
+      Alphabet (for WORDS mode, A/B mapping of 26 letters):
+      <input type="text" id="alph" value="AAAAAAAAAAAAAAAABBBBBBBBBB">
+    </label>
+    <label>
+      Line Width:
+      <input type="number" id="lw" value="58">
+    </label>
+    <label>
+      Encoding Type:
+      <select id="encType">
+        <option>LETTERS</option>
+        <option>RANDOM LETTERS</option>
+        <option>SEQUENCE</option>
+        <option>WORDS</option>
+      </select>
+    </label>
+    <label>
+      Hint Type:
+      <select id="hintType">
+        <option>None</option>
+        <option>Start Crib</option>
+        <option>End Crib</option>
+        <option>Letters</option>
+      </select>
+    </label>
+    <label>
+      Hint:
+      <input type="text" id="hint">
+    </label>
+    <label>
+      Reveal Keyword (optional):
+      <input type="text" id="revealKeyword">
+    </label>
+    <button type="submit">Generate</button>
+  </form>
+
+  <div class="divider"></div>
+
+  <div class="preview">
+    <h2>Preview</h2>
+    <div id="cipherOutput" class="cipher"></div>
+    <div id="plainOutput" class="plain"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="output">
+    <h2>LaTeX Output</h2>
+    <textarea id="latexOutput" readonly></textarea>
+    <button onclick="downloadLatex()">Download LaTeX</button>
+  </div>
+
+  <script src="embed-output.js"></script>
+  <script>
+    // Baconian mapping
+    const baconianMap = {
+      "A": "AAAAA","B": "AAAAB","C": "AAABA","D": "AAABB","E": "AABAA","F": "AABAB",
+      "G": "AABBA","H": "AABBB","I": "ABAAA","J": "ABAAA","K": "ABAAB","L": "ABABA",
+      "M": "ABABB","N": "ABBAA","O": "ABBAB","P": "ABBBA","Q": "ABBBB","R": "BAAAA",
+      "S": "BAAAB","T": "BAABA","U": "BAABB","V": "BAABB","W": "BABAA","X": "BABAB",
+      "Y": "BABBA","Z": "BABBB"
+    };
+
+    let wordList = [];
+
+    // load 5-letter words from sgb-words.txt
+    fetch("sgb-words.txt")
+      .then(res => res.text())
+      .then(text => {
+        wordList = text.split(/\r?\n/).filter(w => w.length === 5);
+      });
+
+    function baconWordsEncoder(s) {
+      s = s.replace(/[^A-Za-z]/g, "").toUpperCase();
+      let baconed = "";
+      for (let ch of s) {
+        if (baconianMap[ch]) baconed += baconianMap[ch];
+      }
+      return baconed;
+    }
+
+    // --- WORDS MODE ---
+    function getMatchingWords(first, second, third, fourth, fifth) {
+      const matches = [];
+      for (let w of wordList) {
+        if (first.includes(w[0]) &&
+            second.includes(w[1]) &&
+            third.includes(w[2]) &&
+            fourth.includes(w[3]) &&
+            fifth.includes(w[4])) {
+          matches.push(w);
+        }
+      }
+      return matches;
+    }
+
+    function words(s, alph) {
+      let encoded = baconWordsEncoder(s);
+      alph = alph.replace(/\s+/g, "").toUpperCase();
+      // build A and B sets
+      let aSet = "", bSet = "";
+      for (let i = 0; i < 26; i++) {
+        if (alph[i] === "A") aSet += String.fromCharCode(65 + i);
+        if (alph[i] === "B") bSet += String.fromCharCode(65 + i);
+      }
+
+      let worded = "";
+      for (let y = 0; y < encoded.length; y += 5) {
+        const chunk = encoded.slice(y, y + 5);
+        if (chunk.length < 5) break;
+        let sets = [];
+        for (let ch of chunk) {
+          sets.push(ch === "A" ? aSet.toLowerCase() : bSet.toLowerCase());
+        }
+        const wordsList = getMatchingWords(...sets);
+        if (wordsList.length > 0) {
+          let choice = wordsList[Math.floor(Math.random() * wordsList.length)];
+          worded += choice.toUpperCase() + " ";
+        }
+      }
+      return wordsFormatSentence(worded);
+    }
+
+    function wordsFormatSentence(s) {
+      const wordsArr = s.trim().split(/\s+/);
+      let formatted = "";
+      let currentLine = "";
+      let totalLen = 0;
+      for (let word of wordsArr) {
+        if (totalLen + word.length + 1 > 58) {
+          formatted += currentLine.trim() + "\n\n\n";
+          currentLine = word + " ";
+          totalLen = word.length + 1;
+        } else {
+          currentLine += word + " ";
+          totalLen += word.length + 1;
+        }
+      }
+      formatted += currentLine.trim();
+      return formatted;
+    }
+
+    // --- LETTER MODES ---
+    function baconLetterEncoder(s, a, b, lw, type) {
+      let baconed = baconWordsEncoder(s);
+      let encoded = "";
+      a = a.split('');
+      b = b.split('');
+      let x = 0, y = 0;
+
+      if (type === "LETTERS") {
+        for (let lettr of baconed) {
+          if (lettr === "A") {
+            encoded += a[x];
+            x = (x + 1) % a.length;
+          } else if (lettr === "B") {
+            encoded += b[y];
+            y = (y + 1) % b.length;
+          }
+        }
+      } else if (type === "RANDOM LETTERS") {
+        for (let lettr of baconed) {
+          if (lettr === "A") {
+            encoded += a[Math.floor(Math.random() * a.length)];
+          } else if (lettr === "B") {
+            encoded += b[Math.floor(Math.random() * b.length)];
+          }
+        }
+      } else if (type === "SEQUENCE") {
+        for (let lettr of baconed) {
+          if (lettr === "A") {
+            encoded += a[x];
+          } else if (lettr === "B") {
+            encoded += b[x];
+          }
+          x = (x + 1) % a.length;
+        }
+      }
+
+      // add line breaks
+      let spaced = "";
+      for (let i = 0; i < encoded.length; i++) {
+        spaced += encoded[i];
+        if ((i + 1) % lw === 0 && i !== encoded.length - 1) {
+          spaced += "\n\n\n";
+        }
+      }
+      return spaced;
+    }
+
+    // --- FORMATTERS ---
+    function baconianFormatter(qtext, s, a, b, alph, lw, value, type, hintType, hint) {
+      s = s.replace(/[^A-Za-z]/g, "");
+      let t = "";
+      if (type === "WORDS") {
+        t = words(s, alph);
+      } else {
+        t = baconLetterEncoder(s, a, b, lw, type);
+      }
+
+      let result = [];
+      if (hintType === "Start Crib") {
+        result.push(`\\normalsize \\question[${value}] ${qtext} You are told that the plaintext starts with ${hint}`);
+      } else if (hintType === "End Crib") {
+        result.push(`\\normalsize \\question[${value}] ${qtext} You are told that the plaintext ends with ${hint}`);
+      } else if (hintType === "Letters" && hint.trim()) {
+        result.push(`\\normalsize \\question[${value}] ${qtext} You are told that ${hint}`);
+      } else {
+        result.push(`\\normalsize \\question[${value}] ${qtext}`);
+      }
+      result.push("\n \\Large{");
+      result.push("\\begin{verbatim}");
+      result.push(`${t}\n`);
+      result.push("\\end{verbatim}}\n");
+      result.push("\\vfill");
+      result.push("\\uplevel{\\hrulefill}");
+      return result.join("\n");
+    }
+
+    async function generateBaconian() {
+      const qtext = document.getElementById('qtext').value;
+      const s = document.getElementById('plaintext').value;
+      const a = document.getElementById('setA').value || "abcdefghijklm";
+      const b = document.getElementById('setB').value || "nopqrstuvwxyz";
+      const alph = document.getElementById('alph').value;
+      const lw = parseInt(document.getElementById('lw').value) || 58;
+      const value = document.getElementById('value').value;
+      const type = document.getElementById('encType').value;
+      const hint_type = document.getElementById('hintType').value;
+      const hint = document.getElementById('hint').value;
+      const revealKeyword = document.getElementById('revealKeyword').value;
+
+      const latex = baconianFormatter(qtext, s, a, b, alph, lw, value, type, hint_type, hint);
+
+      let preview = (type === "WORDS")
+        ? words(s, alph)
+        : baconLetterEncoder(s, a, b, lw, type);
+
+      let embedQuestion = qtext;
+      if (hint_type === "Start Crib") {
+        embedQuestion += ` You are told that the plaintext starts with ${hint}`;
+      } else if (hint_type === "End Crib") {
+        embedQuestion += ` You are told that the plaintext ends with ${hint}`;
+      } else if (hint_type === "Letters" && hint.trim()) {
+        embedQuestion += ` You are told that ${hint}`;
+      }
+      await setLatexOrEmbedOutput("latexOutput", revealKeyword, "baconian", {
+        cipherType: "Baconian",
+        aristoType: "K2",
+        questionText: questionTextWithValue(value, embedQuestion),
+        cipherText: preview,
+        correctAnswer: lettersOnlyAnswer(s)
+      }, latex);
+
+      document.getElementById('cipherOutput').innerHTML = "<pre>" + preview + "</pre>";
+      document.getElementById('plainOutput').innerHTML = "<pre>" + s.replace(/[^a-zA-Z]/g, '').toUpperCase() + "</pre>";
+    }
+
+    function downloadLatex() {
+      const text = document.getElementById('latexOutput').value;
+      const blob = new Blob([text], {type: "text/plain"});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = "baconian_cipher.tex";
+      a.click();
+    }
+  </script>
+</body>
+</html>

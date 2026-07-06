@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Xenocrypt/Aristocrat Generator</title>
+<link rel="stylesheet" href="cipherstyle.css">
+</head>
+<body>
+
+<h1>Xenocrypt/Aristocrat Generator</h1>
+
+<form id="xenoForm" onsubmit="event.preventDefault(); generateXenoCipher();">
+  <label>Question Text:<textarea id="qtext" required>Solve this Xenocrypt.</textarea></label>
+  <label>Plaintext:<textarea id="plaintext" required></textarea></label>
+  <label>Value:<input type="number" id="value" value="250" required></label>
+  <label>Type:
+    <select id="type">
+      <option>Aristocrat</option>
+      <option>Patristocrat</option>
+    </select>
+  </label>
+  <label>Alphabet (blank, K1, K2, K3):<input type="text" id="alph"></label>
+  <label>Keyword:<input type="text" id="keyword"></label>
+  <label>Reveal Keyword (optional):<input type="text" id="revealKeyword"></label>
+  <label>Shift:<input type="number" id="shift" value="0"></label>
+  <label>Extract keyword?<input type="checkbox" id="extract"></label>
+  <button type="submit">Generate</button>
+</form>
+
+<div class="divider"></div>
+
+<div class="preview">
+<h2>Preview</h2>
+<div id="cipherOutput" class="cipher"></div>
+<div id="plainOutput" class="plain"></div>
+<div id="freqTable" class="freq"></div>
+</div>
+
+<div class="divider"></div>
+
+<div class="output">
+<h2>LaTeX Output</h2>
+<textarea id="latexOutput" readonly rows="20"></textarea>
+<button onclick="downloadLatex()">Download LaTeX</button>
+</div>
+
+<script src="embed-output.js"></script>
+<script>
+const fullAlphabet = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
+
+function derangement(arr) {
+  let result, tries = 0;
+  do {
+    result = arr.slice();
+    for (let i = result.length-1; i>0; i--) {
+      const j = Math.floor(Math.random()*(i+1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+    tries++;
+    if (tries>1000) break;
+  } while(result.some((x,i)=>x===arr[i]));
+  return result;
+}
+
+function randomizeStringNoSamePosition(alphabet) {
+  return derangement(alphabet.split('')).join('');
+}
+
+function processWord(word, shift) {
+  let seen = new Set();
+  let unique = [];
+  word = word.toLowerCase().replace(/ /g,"");
+  for (let c of word) if (!seen.has(c)) { unique.push(c); seen.add(c); }
+
+  // Include Ñ in the remaining alphabet
+  let alphabet = "abcdefghijklmnñopqrstuvwxyz".split('');
+  let unused = alphabet.filter(c => !seen.has(c));
+  let result = unique.concat(unused).join('');
+  shift = shift % result.length;
+  return result.slice(-shift) + result.slice(0, -shift);
+}
+
+function xenoLetterReplacement(s, keyword, shift, alph) {
+  let alphabetUpper, replacementAlphabet;
+  if (!alph) {
+    alphabetUpper = fullAlphabet;
+    replacementAlphabet = randomizeStringNoSamePosition(alphabetUpper);
+  } else if (alph === "K2") {
+    alphabetUpper = fullAlphabet;
+    replacementAlphabet = processWord(keyword, shift).toUpperCase();
+  } else if (alph === "K1") {
+    alphabetUpper = processWord(keyword, shift).toUpperCase();
+    replacementAlphabet = fullAlphabet;
+  } else if (alph === "K3") {
+    alphabetUpper = processWord(keyword,0).toUpperCase();
+    replacementAlphabet = processWord(keyword, shift).toUpperCase();
+  }
+  let table = {};
+  for (let i=0;i<alphabetUpper.length;i++) table[alphabetUpper[i]] = replacementAlphabet[i];
+  return s.toUpperCase().split('').map(c=>table[c]||c).join('');
+}
+
+function aristoFormatSentence(s) {
+  let words = s.split(/\s+/);
+  let formatted="", line="", len=0;
+  for (let word of words) {
+    if (len + word.length +1 > 52) {
+      formatted += line.trim() + "\n\n\n";
+      line = word+" ";
+      len = word.length+1;
+    } else {
+      line += word+" ";
+      len += word.length+1;
+    }
+  }
+  formatted += line.trim();
+  return formatted;
+}
+
+function patFormatSentence(s) {
+  let q = s.replace(/[^a-zA-ZÑ]/g,"");
+  let out="";
+  for (let i=0;i<q.length;i++){ out += q[i]; if(i%5===4) out+=" "; }
+  let words = out.trim().split(/\s+/);
+  let formatted="", line="", len=0;
+  for (let word of words) {
+    if (len + word.length +1 > 52) {
+      formatted += line.trim() + "\n\n\n";
+      line = word+" ";
+      len = word.length+1;
+    } else {
+      line += word+" ";
+      len += word.length+1;
+    }
+  }
+  formatted += line.trim();
+  return formatted;
+}
+
+function aristoFrequencyTable(ct, alph) {
+  let o="";
+  let letters = fullAlphabet;
+  o += alph ? alph : "";
+  for(let i=0;i<letters.length;i++) o += "&"+letters[i];
+  o += "\\\\\n\\hline\nFrequency";
+  for(let i=0;i<letters.length;i++) o += "&"+(ct.match(new RegExp(letters[i],"g"))||[]).length;
+  o += "\\\\\n\\hline\nReplacement";
+  for(let i=0;i<letters.length;i++) o+="&";
+  o += "\\\\";
+  return o;
+}
+
+function monoalphCreator(qtext,s,value,type,alph,keyword,shift,extract){
+  let replaced = xenoLetterReplacement(s, keyword, shift, alph);
+  let formatted = type==="Aristocrat"?aristoFormatSentence(replaced):patFormatSentence(replaced.replace(/[^A-ZÑ]/g,""));
+  let table = aristoFrequencyTable(replaced.replace(/[^A-ZÑ]/g,""), alph);
+  let alphStr = alph?" "+alph:"";
+  let v="\\normalsize \\question["+value+"] "+qtext+"\n\\Large{\n\\begin{verbatim}\n"+formatted+"\n\\end{verbatim}}\n";
+  v+="{\\normalsize\n\\begin{center}\n\\begin{tabular}\n";
+  v+="{|m{2cm}|"+ "m{9.675pt}|".repeat(fullAlphabet.length) +"}\n";
+  v+="\\hline\n"+table+"\n\\hline\n\\end{tabular}\n\\end{center}}\n\\vfill\n\\uplevel{\\hrulefill}\n";
+  return v;
+}
+
+async function generateXenoCipher() {
+  const qtext = document.getElementById('qtext').value;
+  const s = document.getElementById('plaintext').value;
+  const value = document.getElementById('value').value;
+  const type = document.getElementById('type').value;
+  const alph = document.getElementById('alph').value;
+  const keyword = document.getElementById('keyword').value;
+  const revealKeyword = document.getElementById('revealKeyword').value;
+  const shift = parseInt(document.getElementById('shift').value)||0;
+  const extract = document.getElementById('extract').checked;
+
+  const latex = monoalphCreator(qtext,s,value,type,alph,keyword,shift,extract);
+
+  let replaced = xenoLetterReplacement(s, keyword, shift, alph);
+  let formatted = type==="Aristocrat"?aristoFormatSentence(replaced):patFormatSentence(replaced.replace(/[^A-ZÑ]/g,""));
+  await setLatexOrEmbedOutput("latexOutput", revealKeyword, "aristocrat", {
+    cipherType: "Aristocrat",
+    aristoType: alph || "Normal",
+    questionText: questionTextWithValue(value, qtext),
+    cipherText: formatted,
+    correctAnswer: type === "Aristocrat" ? s.toUpperCase() : lettersOnlyAnswer(s, "Ñ")
+  }, latex);
+  document.getElementById('cipherOutput').innerHTML = "<pre>"+formatted+"</pre>";
+  document.getElementById('plainOutput').innerHTML = "<pre>"+replaced.replace(/[^A-ZÑ]/g," ")+"</pre>";
+
+  // Frequency table
+  let freq="<table border='1' cellpadding='5'><tr><th>Letter</th>";
+  for(let i=0;i<fullAlphabet.length;i++) freq+="<td>"+fullAlphabet[i]+"</td>";
+  freq+="</tr><tr><th>Frequency</th>";
+  for(let i=0;i<fullAlphabet.length;i++){
+    let count=(replaced.match(new RegExp(fullAlphabet[i],"g"))||[]).length;
+    freq+="<td>"+count+"</td>";
+  }
+  freq+="</tr><tr><th>Replacement</th>";
+  let replAlpha = alph?processWord(keyword, shift).toUpperCase():randomizeStringNoSamePosition(fullAlphabet);
+  for(let i=0;i<fullAlphabet.length;i++) freq+="<td>"+replAlpha[i]+"</td>";
+  freq+="</tr></table>";
+  document.getElementById('freqTable').innerHTML=freq;
+}
+
+function downloadLatex() {
+  const text = document.getElementById('latexOutput').value;
+  const blob = new Blob([text], {type:"text/plain"});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download="xenocrypt.tex";
+  a.click();
+}
+</script>
+
+</body>
+</html>

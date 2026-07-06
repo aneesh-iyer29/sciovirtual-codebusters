@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Codebusters Practice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f9f9f9;
+    }
+
+    .label {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .word-group {
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: nowrap;
+    }
+
+    .char-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .row {
+      display: flex;
+      flex-direction: row;
+      gap: 4px;
+      justify-content: center;
+    }
+
+    .char-box {
+      width: 35px;
+      height: 35px;
+      text-align: center;
+      font-size: 18px;
+      border: 1px solid #333;
+      text-transform: uppercase;
+      box-sizing: border-box;
+    }
+
+    .readonly {
+      background: #ddd;
+    }
+
+    .space-box {
+      background: #eee;
+      border: 1px solid #ccc;
+      pointer-events: none;
+    }
+
+    .button-container {
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+
+    .flex-wrap-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .char-box:focus {
+      outline: 2px solid gold;
+      background-color: #fffbe6;
+    }
+
+    .morse-dot {
+      font-size: 28px;
+      line-height: 35px;
+    }
+
+    .morse-dash {
+      font-size: 26px;
+      line-height: 35px;
+    }
+
+    .morse-x {
+      font-size: 24px;
+      line-height: 35px;
+    }
+
+    .morse-table {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px;
+      margin-top: 40px;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .morse-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 28px;
+    }
+
+    .morse-char-box {
+      width: 28px;
+      height: 28px;
+      font-size: 16px;
+      text-align: center;
+      border: 1px solid #999;
+    }
+
+    .morse-symbol-box {
+      background-color: #f2f2f2;
+      font-size: 20px;
+      text-align: center;
+      line-height: 28px;
+      pointer-events: none;
+    }
+
+    .morse-label {
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="label" id="questionLabel"></div>
+  <div class="flex-wrap-container" id="gridContainer"></div>
+  <div class="button-container">
+    <button onclick="checkAnswer()">Check Answer</button>
+  </div>
+  <div id="resultMessage" style="margin-top: 10px; font-weight: bold;"></div>
+  <div id="frequencyTableContainer" style="margin-top: 30px;"></div>
+
+  <script>
+    const defaultData = {
+      cipherType: "Fractionated Morse",
+      aristoType: "Normal",
+      questionText: "You came across the following written on a wall in a cave. You notice that it's encoded as a Fractionated Morse. You are told that the quote has ONLY in it corresponding to the encoded text Z L I S D H Z, meaning D = ●×–; H = ●––; I = –●×; L = ––×; S = ●–●; Z = ××–. What does it say?",
+      cipherText: "M  T  U  V  C  P  B  A  S  E  F  W  M  P  D  E  O  F  C  M  I  J  Q  P  V  Y  D  Z  L  I  S  D  H  Z  T  Q  C  Q  V  M  A  V  L  K  P  M  I  P  A  C  M  I  O ",
+      correctAnswer: "the devil doesn't bargain, it only breaks your heart",
+      revealKeyword: "math"
+    };
+
+    const morseTriplets = [
+  "•••", "••-", "••×", "•-•", "•--", "•-×", "•×•", "•×-", "•××",
+  "-••", "-•-", "-•×", "--•", "---", "--×", "-×•", "-×-", "-××",
+  "×••", "×•-", "×•×", "×-•", "×--", "×-×", "××•", "××-"
+];
+
+
+    let answerInputs = [];
+    let keywordInputs = [];
+    let middleInputs = [];
+    let replacementInputs = [];
+
+    const buildPage = () => {
+      document.getElementById("questionLabel").innerText = defaultData.questionText;
+      const container = document.getElementById("gridContainer");
+      container.innerHTML = '';
+      answerInputs = [];
+      keywordInputs = [];
+      middleInputs = [];
+      replacementInputs = [];
+
+      if (defaultData.cipherType === "Fractionated Morse") {
+        buildFractionatedMorse(container);
+      }
+
+      buildMorseTable();
+
+      addCursorLogic(answerInputs);
+      addCursorLogic(keywordInputs);
+      addCursorLogic(middleInputs);
+      addCursorLogic(replacementInputs);
+    };
+
+    const buildFractionatedMorse = (container) => {
+      const chars = defaultData.cipherText.replace(/\s+/g, '');
+      for (let i = 0; i < chars.length; i++) {
+        const group = document.createElement("div");
+        group.className = "char-group";
+
+        const topRow = document.createElement("div");
+        topRow.className = "row";
+        topRow.appendChild(createBox(' ', false, false, true));
+        topRow.appendChild(createBox(chars[i], false, false, true));
+        topRow.appendChild(createBox(' ', false, false, true));
+        group.appendChild(topRow);
+
+        const middleRow = document.createElement("div");
+        middleRow.className = "row";
+        for (let j = 0; j < 3; j++) {
+          const midBox = createBox('', true, false, false, true);
+          midBox.style.fontSize = "28px";
+          midBox.style.lineHeight = "35px";
+          midBox.style.textAlign = "center";
+          middleInputs.push(midBox);
+          middleRow.appendChild(midBox);
+        }
+        group.appendChild(middleRow);
+
+        const bottomRow = document.createElement("div");
+        bottomRow.className = "row";
+        for (let j = 0; j < 3; j++) {
+          const answerBox = createBox('', true, false);
+          answerInputs.push(answerBox);
+          bottomRow.appendChild(answerBox);
+        }
+        group.appendChild(bottomRow);
+
+        container.appendChild(group);
+      }
+    };
+
+    const createBox = (ch, editable = false, isSpace = false, readonly = false, isMorse = false) => {
+      const input = document.createElement('input');
+      input.className = 'char-box';
+
+      if (isSpace || ch === ' ') {
+        input.value = ' ';
+        input.readOnly = true;
+        input.tabIndex = -1;
+        input.classList.add('space-box');
+      } else if (readonly) {
+        input.value = ch.toUpperCase();
+        input.readOnly = true;
+        input.tabIndex = -1;
+        input.classList.add('readonly');
+      } else if (editable) {
+        input.maxLength = 1;
+        input.value = '';
+        input.addEventListener('focus', () => input.select());
+
+        if (isMorse) {
+          input.dataset.value = '';
+          input.addEventListener('input', (e) => {
+            const val = e.target.value.trim().toLowerCase();
+            input.classList.remove('morse-dot', 'morse-dash', 'morse-x');
+            let symbol = '';
+            if (val === '.') {
+              symbol = '•';
+              input.classList.add('morse-dot');
+            } else if (val === '-') {
+              symbol = '—';
+              input.classList.add('morse-dash');
+            } else if (val === 'x') {
+              symbol = '×';
+              input.classList.add('morse-x');
+            } else {
+              input.value = '';
+              input.dataset.value = '';
+              return;
+            }
+            input.value = symbol;
+            input.dataset.value = val;
+          });
+        }
+      }
+
+      return input;
+    };
+
+    const addCursorLogic = (inputList) => {
+      inputList.forEach((input, idx) => {
+        input.addEventListener('beforeinput', (e) => {
+          if (e.inputType === 'insertText' && e.data) {
+            e.preventDefault();
+            const val = e.data.toUpperCase();
+            input.value = val;
+            input.dataset.value = val.toLowerCase();
+            let next = idx + 1;
+            while (next < inputList.length && inputList[next].readOnly) next++;
+            if (next < inputList.length) inputList[next].focus();
+          }
+        });
+
+        input.addEventListener('keydown', (e) => {
+          if (e.key === "Backspace") {
+            e.preventDefault();
+            input.value = '';
+            input.dataset.value = '';
+            let prev = idx - 1;
+            while (prev >= 0 && inputList[prev].readOnly) prev--;
+            if (prev >= 0) inputList[prev].focus();
+          } else if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            let prev = idx - 1;
+            while (prev >= 0 && inputList[prev].readOnly) prev--;
+            if (prev >= 0) inputList[prev].focus();
+          } else if (e.key === "ArrowRight") {
+            e.preventDefault();
+            let next = idx + 1;
+            while (next < inputList.length && inputList[next].readOnly) next++;
+            if (next < inputList.length) inputList[next].focus();
+          }
+        });
+      });
+    };
+
+    const checkAnswer = () => {
+      let userAnswer = answerInputs
+        .map(input => input.value.toUpperCase().trim())
+        .filter(ch => ch !== '')
+        .join('');
+
+      const correct = defaultData.correctAnswer.toUpperCase().replace(/\s+/g, '');
+
+      const resultDiv = document.getElementById("resultMessage");
+      if (userAnswer === correct) {
+        resultDiv.style.color = "green";
+        resultDiv.textContent = `✅ Correct! Keyword: ${defaultData.revealKeyword}`;
+      } else {
+        resultDiv.style.color = "red";
+        resultDiv.textContent = "❌ Incorrect. Try again.";
+      }
+    };
+
+    const buildMorseTable = () => {
+      const table = document.getElementById("frequencyTableContainer");
+      table.innerHTML = '';
+      replacementInputs = [];
+
+      const label = document.createElement("div");
+      label.className = "morse-label";
+      label.textContent = "Replacement";
+      table.appendChild(label);
+
+      const tableRow = document.createElement("div");
+      tableRow.className = "morse-table";
+
+      for (let i = 0; i < morseTriplets.length; i++) {
+        const column = document.createElement("div");
+        column.className = "morse-col";
+
+        const topBox = document.createElement('input');
+        topBox.className = 'morse-char-box';
+        topBox.maxLength = 1;
+        replacementInputs.push(topBox);
+        column.appendChild(topBox);
+
+        const triplet = morseTriplets[i];
+        for (let j = 0; j < 3; j++) {
+          const symbolBox = document.createElement('input');
+          symbolBox.className = 'morse-char-box morse-symbol-box';
+          const symbol = triplet[j] === '•' || triplet[j] === '.' ? '•'
+                        : triplet[j] === '-' ? '—'
+                        : '×';
+          symbolBox.value = symbol;
+          symbolBox.readOnly = true;
+          column.appendChild(symbolBox);
+        }
+
+        tableRow.appendChild(column);
+      }
+
+      table.appendChild(tableRow);
+    };
+
+    window.addEventListener("DOMContentLoaded", buildPage);
+    window.addEventListener("resize", buildPage);
+  </script>
+</body>
+</html>

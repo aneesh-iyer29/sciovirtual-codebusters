@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cryptarithm Generator</title>
+  <link rel="stylesheet" href="cipherstyle.css">  
+</head>
+<body>
+  <h1>Cryptarithm Generator</h1>
+  <form id="cryptForm" onsubmit="event.preventDefault(); generateCryptarithm();">
+    <label>
+      Value:
+      <input type="number" id="value" value="500" required>
+    </label>
+
+    <label>
+      Solution Numbers (space-separated):
+      <input type="text" id="solution" value="354916 75028" required>
+    </label>
+
+    <label>
+      Operation:
+      <input type="text" id="operation" value="Base 10 Multiplication" required>
+    </label>
+
+    <label>
+      Cryptarithm Layout:
+      <textarea id="layout" rows="10" required>TEXAS
+x     BED
+---------
+   MTIESS
+   DAMSS
+ ERDAAS
+---------
+ MISTRESS</textarea>
+    </label>
+
+    <button type="submit">Generate</button>
+  </form>
+
+  <div class="divider"></div>
+
+  <div class="preview">
+    <h2>Preview</h2>
+    <div id="cryptPreview"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="output">
+    <h2>LaTeX Output</h2>
+    <textarea id="latexOutput" readonly></textarea>
+    <button onclick="downloadLatex()">Download LaTeX</button>
+  </div>
+
+  <script>
+    function cryptarithmFormatter(value, solution, operation, layout) {
+      let result = `\\normalsize \\question[${value}] Solve this \\textbf{cryptarithm} for $${solution}$. Write out your final answer and $\\boxed{\\text{box}}$ it.
+\\parskip 1cm
+
+\\Large
+\\begin{verbatim}
+${operation}
+Answer: ${solution}
+
+${layout}
+
+\\end{verbatim}
+\\vfill
+\\uplevel{\\hrulefill}`;
+      return result;
+    }
+
+    function generateCryptarithm() {
+      const value = document.getElementById('value').value;
+      const solution = document.getElementById('solution').value.trim();
+      const operation = document.getElementById('operation').value.trim();
+      const layout = document.getElementById('layout').value;
+
+      const latex = cryptarithmFormatter(value, solution, operation, layout);
+      document.getElementById('latexOutput').value = latex;
+
+      // Show preview (basic plaintext formatting)
+      let previewHTML = `<pre>${operation}\nAnswer: ${solution} (two words)\n\n${layout}</pre>`;
+      document.getElementById('cryptPreview').innerHTML = previewHTML;
+    }
+
+    function downloadLatex() {
+      const text = document.getElementById('latexOutput').value;
+      const blob = new Blob([text], {type: "text/plain"});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = "cryptarithm.tex";
+      a.click();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "sciovirtual-codebusters",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "ScioVirtual Advanced Codebusters course site: static, with interactive cipher solvers and a local question generator.",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "serve": "npx --yes serve -l 8000 .",
+    "add:question": "node tools/add-question.mjs",
+    "add:page": "node tools/add-page.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

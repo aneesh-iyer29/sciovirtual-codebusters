@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Codebusters Practice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f9f9f9;
+    }
+
+    .label {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .word-group {
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: nowrap;
+    }
+
+    .char-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .char-box {
+      width: 35px;
+      height: 35px;
+      text-align: center;
+      font-size: 18px;
+      border: 1px solid #333;
+      text-transform: uppercase;
+      box-sizing: border-box;
+      background: white;
+    }
+
+    .readonly {
+      background: #ddd;
+    }
+
+    .space-box {
+      background: #eee;
+      border: 1px solid #ccc;
+      pointer-events: none;
+    }
+
+    .punct-box {
+      background: #f2f2f2;
+      pointer-events: none;
+    }
+
+    .flex-wrap-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    /* Focus look for the active input */
+    .char-box:focus {
+      outline: 2px solid gold;
+      background-color: #fffbe6;
+    }
+
+    /* highlight applied to matching cells when Autofill ON
+       or applied singly to the focused cell when Autofill OFF */
+    .highlight {
+      background-color: #fff5b3 !important;
+    }
+
+    #cipherInput {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    #loadButton {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+
+    select {
+      font-size: 16px;
+      margin-right: 10px;
+      padding: 5px;
+    }
+
+    table input {
+      width: 25px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #333;
+      padding: 4px;
+    }
+
+    th {
+      background: #ccc;
+    }
+
+    .krow td {
+      background: #eef;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="label">Enter your cipher text below:</div>
+  <textarea id="cipherInput" rows="3" placeholder="Paste or type your cipher text here..."></textarea>
+  <br /><br />
+
+  <label for="cipherType">Cipher Type:</label>
+  <select id="cipherType">
+    <option value="Aristocrat">Aristocrat</option>
+    <option value="Xenocrypt">Xenocrypt</option>
+  </select>
+
+  <label for="alphaType">Alphabet Type:</label>
+  <select id="alphaType">
+    <option value="K1">K1</option>
+    <option value="K2">K2</option>
+  </select>
+
+  <button id="loadButton">Load Cipher</button>
+
+  <div style="margin-top: 15px;">
+    <label><input type="checkbox" id="autofillToggle"> Autofill Mode</label>
+  </div>
+
+  <div class="label" style="margin-top: 20px;">Solve Below:</div>
+  <div class="flex-wrap-container" id="gridContainer"></div>
+
+  <div id="frequencyTableContainer" style="margin-top: 30px;"></div>
+
+  <script>
+    let answerInputs = [];
+    let kInputs = [];
+    let cipherMapping = []; // { cipher: 'P', box: <input> }
+    let autofillEnabled = false;
+    let currentAlphaType = "K1";
+
+    // create a char input box
+    function createBox(ch, editable = false, isSpace = false, readonly = false) {
+      const input = document.createElement('input');
+      input.className = 'char-box';
+      if (isSpace || ch === ' ') {
+        input.value = ' ';
+        input.readOnly = true;
+        input.tabIndex = -1;
+        input.classList.add('space-box');
+      } else if (readonly || /^[.,;:'!?]$/.test(ch)) {
+        input.value = ch.toUpperCase();
+        input.readOnly = true;
+        input.tabIndex = -1;
+        input.classList.add('readonly');
+        if (/^[.,;:'!?]$/.test(ch)) input.classList.add('punct-box');
+      } else if (editable) {
+        input.maxLength = 1;
+        input.value = '';
+      }
+      return input;
+    }
+
+    // Add navigation, focus/blur, and input handling for grid inputs
+    function addCursorLogic(inputs) {
+      inputs.forEach((input, idx) => {
+        // handle typed characters
+        input.addEventListener('beforeinput', (e) => {
+          if (e.inputType === 'insertText' && e.data) {
+            e.preventDefault();
+            const ch = e.data.toUpperCase();
+            input.value = ch;
+            handleAutofillFromGrid(input, ch);
+            // after edit, highlight based on autofill state and focused cell
+            if (autofillEnabled) highlightAllMatches(input.dataset.cipher);
+            else highlightSingle(input);
+            // advance focus
+            let next = idx + 1;
+            while (next < inputs.length && inputs[next].readOnly) next++;
+            if (next < inputs.length) inputs[next].focus();
+          }
+        });
+
+        // navigation and clearing
+        input.addEventListener('keydown', (e) => {
+          if (e.key === "Backspace") {
+            e.preventDefault();
+            input.value = '';
+            handleAutofillFromGrid(input, '');
+            if (autofillEnabled) highlightAllMatches(input.dataset.cipher);
+            else highlightSingle(input);
+            if (idx > 0) inputs[idx - 1].focus();
+          } else if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            let prev = idx - 1;
+            while (prev >= 0 && inputs[prev].classList.contains("space-box")) prev--;
+            if (prev >= 0) inputs[prev].focus();
+          } else if (e.key === "ArrowRight") {
+            e.preventDefault();
+            let next = idx + 1;
+            while (next < inputs.length && inputs[next].classList.contains("space-box")) next++;
+            if (next < inputs.length) inputs[next].focus();
+          }
+        });
+
+        // focus/blur: when focused show appropriate highlight behavior
+        input.addEventListener('focus', () => {
+          if (autofillEnabled) highlightAllMatches(input.dataset.cipher);
+          else highlightSingle(input);
+        });
+        input.addEventListener('blur', clearHighlights);
+
+        // hover should show the same as focus while hovering
+        input.addEventListener('mouseenter', () => {
+          if (autofillEnabled) highlightAllMatches(input.dataset.cipher);
+          else highlightSingle(input);
+        });
+        input.addEventListener('mouseleave', () => {
+          // only clear if not focused
+          if (document.activeElement !== input) clearHighlights();
+        });
+      });
+    }
+
+    // highlight exactly one input element (the focused/hovered one)
+    function highlightSingle(el) {
+      clearHighlights();
+      if (!el) return;
+      el.classList.add('highlight');
+    }
+
+    // highlight all grid inputs that share the ciphertext letter
+    function highlightAllMatches(cipherChar) {
+      clearHighlights();
+      if (!cipherChar) return;
+      cipherMapping.forEach(item => {
+        if (item.cipher === cipherChar) item.box.classList.add('highlight');
+      });
+    }
+
+    function clearHighlights() {
+      document.querySelectorAll('.highlight').forEach(n => n.classList.remove('highlight'));
+    }
+
+    // user typed in the grid: propagate changes when autofill on
+    function handleAutofillFromGrid(input, plainVal) {
+      if (!autofillEnabled) return;
+      const cipherChar = input.dataset.cipher;
+
+      // set every matching grid box
+      cipherMapping.forEach(item => {
+        if (item.cipher === cipherChar) item.box.value = plainVal;
+      });
+
+      // reflect in mapping table
+      if (currentAlphaType === "K1") {
+        // K1: each table cell corresponds to ciphertext, value = plaintext
+        const tableCell = kInputs.find(k => k.dataset.cipher === cipherChar);
+        if (tableCell) tableCell.value = plainVal;
+      } else {
+        // K2: table input corresponds to plaintext (input.dataset.plain)
+        // when user types plainVal under cipherChar in grid, we should find the table input whose dataset.plain === plainVal
+        // and set its value to the cipherChar (cipher above plain)
+        if (!plainVal) {
+          // clearing: remove any kInputs that had mapping to this cipherChar in their value
+          kInputs.forEach(k => {
+            if (k.value.toUpperCase() === cipherChar) k.value = '';
+          });
+          return;
+        }
+        const kCell = kInputs.find(k => k.dataset.plain === plainVal);
+        if (kCell) kCell.value = cipherChar;
+      }
+    }
+
+    // Build grid from cipher text
+    function buildGrid(cipherText, cipherType, alphaType) {
+      currentAlphaType = alphaType;
+      const container = document.getElementById('gridContainer');
+      container.innerHTML = '';
+      answerInputs = [];
+      kInputs = [];
+      cipherMapping = [];
+
+      const words = cipherText.trim().split(/\s+/);
+      words.forEach((word, wi) => {
+        const wordDiv = document.createElement('div');
+        wordDiv.className = 'word-group';
+
+        for (let i = 0; i < word.length; i++) {
+          const ch = word[i];
+          const charGroup = document.createElement('div');
+          charGroup.className = 'char-group';
+
+          const cipherBox = createBox(ch, false, false, true);
+          charGroup.appendChild(cipherBox);
+
+          if (/^[.,;:'!?]$/.test(ch)) {
+            const punctBox = createBox(ch, false, false, true);
+            punctBox.classList.add('punct-box');
+            charGroup.appendChild(punctBox);
+          } else {
+            const answerBox = createBox('', true, false);
+            answerBox.dataset.cipher = ch.toUpperCase();
+            cipherMapping.push({ cipher: ch.toUpperCase(), box: answerBox });
+            answerInputs.push(answerBox);
+            charGroup.appendChild(answerBox);
+          }
+
+          wordDiv.appendChild(charGroup);
+        }
+
+        // add a spacer group for word separation
+        const spaceGroup = document.createElement('div');
+        spaceGroup.className = 'char-group';
+        spaceGroup.appendChild(createBox(' ', false, true));
+        spaceGroup.appendChild(createBox(' ', false, true));
+        spaceGroup.appendChild(createBox(' ', false, true));
+        wordDiv.appendChild(spaceGroup);
+
+        container.appendChild(wordDiv);
+      });
+
+      addCursorLogic(answerInputs);
+      showFrequencyTable(cipherText, cipherType, alphaType);
+    }
+
+    // Build frequency & mapping table and wire table inputs
+    function showFrequencyTable(cipherText, cipherType, alphaType) {
+      const freq = {};
+      const letters = cipherType === 'Xenocrypt'
+        ? [...'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ']
+        : [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'];
+
+      letters.forEach(l => freq[l] = 0);
+      for (const ch of cipherText.toUpperCase()) {
+        if (letters.includes(ch)) freq[ch]++;
+      }
+
+      const container = document.getElementById('frequencyTableContainer');
+      container.innerHTML = '';
+
+      const table = document.createElement('table');
+      const headerRow = document.createElement('tr');
+      const countRow = document.createElement('tr');
+      const kRow = document.createElement('tr');
+      kRow.classList.add('krow');
+
+      letters.forEach(letter => {
+        const th = document.createElement('th');
+        th.textContent = letter;
+        headerRow.appendChild(th);
+
+        const tdCount = document.createElement('td');
+        tdCount.textContent = freq[letter];
+        countRow.appendChild(tdCount);
+
+        const tdK = document.createElement('td');
+        const input = document.createElement('input');
+        input.maxLength = 1;
+        // dataset.cipher always marks which ciphertext letter this column is for
+        input.dataset.cipher = letter;
+        // dataset.plain used for K2: this input's 'plain' letter (top row) is the same letter in logical mapping
+        input.dataset.plain = letter;
+
+        // table input typing: use beforeinput to sanitize / uppercase
+        input.addEventListener('beforeinput', (e) => {
+          if (e.inputType === 'insertText' && e.data) {
+            e.preventDefault();
+            const val = e.data.toUpperCase();
+            input.value = val;
+            handleTableInput(input, val);
+            // after typing, highlight appropriately
+            if (autofillEnabled) {
+              if (currentAlphaType === 'K1') highlightAllMatches(input.dataset.cipher);
+              else highlightAllMatches(val); // in K2, val is the cipher letter typed above the plain letter
+            } else {
+              // Autofill off -> highlight only this table input (and don't highlight grid matches)
+              clearHighlights();
+              input.classList.add('highlight');
+            }
+          }
+        });
+
+        // backspace clearing
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace') {
+            e.preventDefault();
+            input.value = '';
+            handleTableInput(input, '');
+          }
+        });
+
+        // focus/hover highlighting for table inputs:
+        input.addEventListener('focus', () => {
+          if (autofillEnabled) {
+            if (currentAlphaType === 'K1') highlightAllMatches(input.dataset.cipher);
+            else {
+              // K2: if the table input shows cipher letter (value), highlight all instances of that cipher letter
+              const cipherVal = input.value ? input.value.toUpperCase() : null;
+              highlightAllMatches(cipherVal || input.dataset.cipher);
+            }
+          } else {
+            clearHighlights();
+            input.classList.add('highlight'); // only highlight the table input itself
+          }
+        });
+        input.addEventListener('blur', clearHighlights);
+
+        // also show highlight on hover similar to focus
+        input.addEventListener('mouseenter', () => {
+          if (autofillEnabled) {
+            if (currentAlphaType === 'K1') highlightAllMatches(input.dataset.cipher);
+            else {
+              const cipherVal = input.value ? input.value.toUpperCase() : null;
+              highlightAllMatches(cipherVal || input.dataset.cipher);
+            }
+          } else {
+            clearHighlights();
+            input.classList.add('highlight');
+          }
+        });
+        input.addEventListener('mouseleave', () => {
+          if (document.activeElement !== input) clearHighlights();
+        });
+
+        tdK.appendChild(input);
+        kInputs.push(input);
+        kRow.appendChild(tdK);
+      });
+
+      // layout K1 vs K2
+      if (alphaType === 'K1') {
+        table.appendChild(headerRow); // ciphertext row
+        table.appendChild(countRow);
+        table.appendChild(kRow); // plaintext inputs below ciphertext
+      } else {
+        // K2: place mapping input row above ciphertext header visually
+        table.appendChild(kRow); // mapping row (where user types ciphertext above plaintext)
+        table.appendChild(headerRow);
+        table.appendChild(countRow);
+      }
+
+      container.appendChild(table);
+    }
+
+    // Handle table edits -> propagate to grid (works for both K1 and K2 when autofill enabled)
+    function handleTableInput(input, val) {
+      if (!autofillEnabled) return;
+
+      if (currentAlphaType === 'K1') {
+        // In K1 the table input corresponds to the ciphertext column; value is plaintext.
+        // So typing plaintext into the table cell should set all grid boxes for that ciphertext letter.
+        const cipherCol = input.dataset.cipher; // column = ciphertext letter
+        const plainVal = val;
+        cipherMapping.forEach(item => {
+          if (item.cipher === cipherCol) item.box.value = plainVal;
+        });
+      } else {
+        // K2: input corresponds to a plaintext letter column visually; the user types the ciphertext letter above plain.
+        // dataset.plain is the plaintext letter for this table input; val is the ciphertext letter user typed.
+        const plainLetter = input.dataset.plain;
+        const cipherLetter = val;
+        if (!cipherLetter) {
+          // cleared: remove mapping (clear grid cells that had this cipherLetter -> plainLetter)
+          cipherMapping.forEach(item => {
+            if (item.cipher === cipherLetter) item.box.value = '';
+          });
+          return;
+        }
+        // set every grid cell whose ciphertext === cipherLetter to show the plaintext (plainLetter)
+        cipherMapping.forEach(item => {
+          if (item.cipher === cipherLetter) item.box.value = plainLetter;
+        });
+      }
+    }
+
+    // wire autofill toggle
+    document.getElementById('autofillToggle').addEventListener('change', (e) => {
+      autofillEnabled = e.target.checked;
+      // when toggling off, clear multi-highlights and keep only focused single highlight if any focused element
+      clearHighlights();
+      const active = document.activeElement;
+      if (active && active.classList && active.classList.contains('char-box')) {
+        active.classList.add('highlight');
+      }
+    });
+
+    // load button
+    document.getElementById('loadButton').addEventListener('click', () => {
+      const text = document.getElementById('cipherInput').value || '';
+      const cipherType = document.getElementById('cipherType').value;
+      const alphaType = document.getElementById('alphaType').value;
+      if (!text.trim()) return;
+      buildGrid(text, cipherType, alphaType);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Columnar Cipher Generator</title>
+  <link rel="stylesheet" href="cipherstyle.css">  
+</head>
+<body>
+  <h1>Complete Columnar Cipher Encoder</h1>
+  <form id="cipherForm" onsubmit="event.preventDefault(); generateCipher();">
+    <label>
+      Question Text:
+      <textarea id="qtext" required>Decode this phrase that was encoded using the Complete Columnar cipher.</textarea>
+    </label>
+
+    <label>
+      Plaintext:
+      <textarea id="plaintext" required></textarea>
+    </label>
+
+    <label>
+      Value:
+      <input type="number" id="value" value="250" required>
+    </label>
+
+    <label>
+      Columns:
+      <input type="number" id="columns" value="6" required>
+    </label>
+
+    <label>
+      Crib (plaintext clue):
+      <input type="text" id="crib" required>
+    </label>
+
+    <label>
+      Key (leave blank to randomize):
+      <input type="text" id="key">
+    </label>
+
+    <button type="submit">Generate</button>
+  </form>
+
+  <div class="divider"></div>
+
+  <div class="preview">
+    <h2>Preview</h2>
+    <p><strong>Key Used:</strong> <span id="keyDisplay"></span></p>
+    <div id="cipherOutput" class="cipher"></div>
+    <div id="plainOutput" class="plain"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="output">
+    <h2>LaTeX Output</h2>
+    <textarea id="latexOutput" readonly></textarea>
+    <button onclick="downloadLatex()">Download LaTeX</button>
+  </div>
+
+  <script>
+    function encryptColumnarMessage(msg, key) {
+      msg = msg.replace(/[^A-Z]/g, "").toUpperCase();
+      let msgArr = msg.split("");
+      let col = key.length;
+      let row = Math.ceil(msgArr.length / col);
+
+      let fillNull = row * col - msgArr.length;
+      for (let i = 0; i < fillNull; i++) msgArr.push("X");
+
+      let matrix = [];
+      for (let i = 0; i < msgArr.length; i += col) {
+        matrix.push(msgArr.slice(i, i + col));
+      }
+
+      let keyLst = key.split("").slice().sort();
+      let cipher = "";
+      for (let k = 0; k < col; k++) {
+        let currIdx = key.indexOf(keyLst[k]);
+        for (let r = 0; r < row; r++) {
+          cipher += matrix[r][currIdx];
+        }
+      }
+      return cipher;
+    }
+
+    function columnarFormatter(qtext, s, key, crib, value) {
+      s = s.replace(/[^a-zA-Z]/g, "");
+      let t = encryptColumnarMessage(s, key);
+
+      let spaced = "";
+      for (let i = 0; i < t.length; i++) {
+        spaced += t[i];
+        if (i % 5 === 4) spaced += " ";
+      }
+      let words = spaced.trim().split(/\s+/);
+
+      let formatted = "", line = "", len = 0;
+      for (let word of words) {
+        if (len + word.length + 1 > 52) {
+          formatted += line.trim() + "\n\n\n";
+          line = word + " ";
+          len = word.length + 1;
+        } else {
+          line += word + " ";
+          len += word.length + 1;
+        }
+      }
+      formatted += line.trim();
+
+      let result = [];
+      result.push(`\\normalsize \\question[${value}] Decode this phrase that was encoded using the \\textbf{Complete Columnar} cipher. You are told that the plaintext contains \\textbf{${crib.toUpperCase()}}.`);
+      result.push("\n \\Large{");
+      result.push("\\begin{verbatim}");
+      result.push(formatted + "\n");
+      result.push("\\end{verbatim}}\n");
+      result.push("\\vfill");
+      result.push("\\uplevel{\\hrulefill}");
+      return result.join("\n");
+    }
+
+    function generateCipher() {
+      const qtext = document.getElementById('qtext').value;
+      const s = document.getElementById('plaintext').value;
+      const value = document.getElementById('value').value;
+      const columns = parseInt(document.getElementById('columns').value);
+      const crib = document.getElementById('crib').value;
+      let key = document.getElementById('key').value.trim();
+
+      // if no key provided, randomize
+      if (!key) {
+        let keyArr = [...Array(columns).keys()].map(String);
+        key = keyArr.sort(() => Math.random() - 0.5).join("");
+        document.getElementById('key').value = key; // fill input so user sees it
+      }
+
+      document.getElementById('keyDisplay').innerText = key;
+
+      const latex = columnarFormatter(qtext, s, key, crib, value);
+      document.getElementById('latexOutput').value = latex;
+
+      // preview cipher text
+      let cipher = encryptColumnarMessage(s.replace(/[^a-zA-Z]/g, ""), key);
+
+      let spaced = "";
+      for (let i = 0; i < cipher.length; i++) {
+        spaced += cipher[i];
+        if (i % 5 === 4) spaced += " ";
+      }
+      let words = spaced.trim().split(/\s+/);
+      let formatted = "", line = "", len = 0;
+      for (let word of words) {
+        if (len + word.length + 1 > 52) {
+          formatted += line.trim() + "\n\n\n";
+          line = word + " ";
+          len = word.length + 1;
+        } else {
+          line += word + " ";
+          len += word.length + 1;
+        }
+      }
+      formatted += line.trim();
+
+      document.getElementById('cipherOutput').innerHTML = "<pre>" + formatted + "</pre>";
+      document.getElementById('plainOutput').innerHTML = "<pre>" + s.toUpperCase().replace(/[^A-Z]/g," ") + "</pre>";
+    }
+
+    function downloadLatex() {
+      const text = document.getElementById('latexOutput').value;
+      const blob = new Blob([text], {type: "text/plain"});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = "cipher.tex";
+      a.click();
+    }
+  </script>
+</body>
+</html>

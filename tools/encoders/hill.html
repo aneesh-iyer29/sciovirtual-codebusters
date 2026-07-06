@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Hill Cipher Generator</title>
+<link rel="stylesheet" href="cipherstyle.css">
+</head>
+<body>
+
+<h1>Hill Cipher Generator</h1>
+
+<form id="hillForm" onsubmit="event.preventDefault(); generateHillCipher();">
+  <label>
+    Question Text:
+    <textarea id="qtext" required>Decode this Hill cipher.</textarea>
+  </label>
+
+  <label>
+    Plaintext:
+    <textarea id="plaintext" required></textarea>
+  </label>
+
+  <label>
+    Keyword (length 4 or 9):
+    <input type="text" id="keyword" required>
+  </label>
+
+  <label>
+    Value:
+    <input type="number" id="value" value="250" required>
+  </label>
+
+  <label>
+    Reveal Keyword (optional):
+    <input type="text" id="revealKeyword">
+  </label>
+
+  <button type="submit">Generate</button>
+</form>
+
+<div class="divider"></div>
+
+<div class="preview">
+  <h2>Preview</h2>
+  <div id="cipherOutput"><pre></pre></div>
+</div>
+
+<div class="divider"></div>
+
+<div class="output">
+  <h2>LaTeX Output</h2>
+  <textarea id="latexOutput" readonly rows="15"></textarea>
+  <button onclick="downloadLatex()">Download LaTeX</button>
+</div>
+
+<script src="embed-output.js"></script>
+<script>
+function hillMatrix(keyword) {
+  let b = Array.from(keyword.toUpperCase()).map(c => c.charCodeAt(0)-65);
+  if (keyword.length === 4) {
+    return `\\[\\begin{pmatrix}${keyword[0]}&${keyword[1]}\\\\${keyword[2]}&${keyword[3]}\\end{pmatrix} = \\begin{pmatrix}${b[0]}&${b[1]}\\\\${b[2]}&${b[3]}\\end{pmatrix}\\]`;
+  }
+  if (keyword.length === 9) {
+    // compute 3x3 inverse etc. as in original Python
+    let z = b;
+    let a = (z[4]*z[8] - z[5]*z[7]) % 26;
+    let b1 = -(z[3]*z[8] - z[5]*z[6]) % 26;
+    let c = (z[3]*z[7] - z[4]*z[6]) % 26;
+    let d = -(z[1]*z[8] - z[2]*z[7]) % 26;
+    let e = (z[0]*z[8] - z[2]*z[6]) % 26;
+    let f = -(z[0]*z[7] - z[1]*z[6]) % 26;
+    let g = (z[1]*z[5] - z[2]*z[4]) % 26;
+    let h = -(z[0]*z[5] - z[2]*z[3]) % 26;
+    let i = (z[0]*z[4] - z[1]*z[3]) % 26;
+    let det = (a * z[0] + b1 * z[1] + c * z[2]) % 26;
+    det = modInverse(det,26);
+    let w = [(a*det)%26,(d*det)%26,(g*det)%26,(b1*det)%26,(e*det)%26,(h*det)%26,(c*det)%26,(f*det)%26,(i*det)%26];
+    return `\\begin{align*}
+\\begin{pmatrix}${keyword[0]}&${keyword[1]}&${keyword[2]}\\\\${keyword[3]}&${keyword[4]}&${keyword[5]}\\\\${keyword[6]}&${keyword[7]}&${keyword[8]}\\end{pmatrix} = 
+\\begin{pmatrix}${z[0]}&${z[1]}&${z[2]}\\\\${z[3]}&${z[4]}&${z[5]}\\\\${z[6]}&${z[7]}&${z[8]}\\end{pmatrix} \\quad 
+\\begin{pmatrix}${z[0]}&${z[1]}&${z[2]}\\\\${z[3]}&${z[4]}&${z[5]}\\\\${z[6]}&${z[7]}&${z[8]}\\end{pmatrix}^{-1} = 
+\\begin{pmatrix}${w[0]}&${w[1]}&${w[2]}\\\\${w[3]}&${w[4]}&${w[5]}\\\\${w[6]}&${w[7]}&${w[8]}\\end{pmatrix}
+\\end{align*}`;
+  }
+}
+
+// modular inverse for 3x3
+function modInverse(a,m){ a = ((a % m) + m) % m; for (let x=1;x<m;x++){ if ((a*x)%m===1) return x;} return 1;}
+
+function hillEncoder(text,keyword){
+  text = text.toUpperCase().replace(/[^A-Z]/g,"");
+  keyword = keyword.toUpperCase();
+  let b = Array.from(keyword).map(c => c.charCodeAt(0)-65);
+  let e = [];
+  let c = Array.from(text).map(c=>c.charCodeAt(0)-65);
+  if(keyword.length===9){
+    while(c.length%3!==0) c.push(25);
+    for(let i=0;i<c.length;i+=3){
+      let v1 = (b[0]*c[i]+b[1]*c[i+1]+b[2]*c[i+2])%26;
+      let v2 = (b[3]*c[i]+b[4]*c[i+1]+b[5]*c[i+2])%26;
+      let v3 = (b[6]*c[i]+b[7]*c[i+1]+b[8]*c[i+2])%26;
+      e.push(String.fromCharCode(v1+65),String.fromCharCode(v2+65),String.fromCharCode(v3+65));
+    }
+  }
+  if(keyword.length===4){
+    while(c.length%2!==0) c.push(25);
+    for(let i=0;i<c.length;i+=2){
+      let v1=(b[0]*c[i]+b[1]*c[i+1])%26;
+      let v2=(b[2]*c[i]+b[3]*c[i+1])%26;
+      e.push(String.fromCharCode(v1+65),String.fromCharCode(v2+65));
+    }
+  }
+  return e.join("");
+}
+
+async function generateHillCipher(){
+  const qtext = document.getElementById("qtext").value;
+  const plaintext = document.getElementById("plaintext").value;
+  const keyword = document.getElementById("keyword").value;
+  const value = document.getElementById("value").value;
+  const revealKeyword = document.getElementById("revealKeyword").value;
+
+  const matrix = hillMatrix(keyword);
+  const encoded = hillEncoder(plaintext,keyword);
+
+  // Preview
+  document.getElementById("cipherOutput").innerHTML = "<pre>"+encoded+"</pre>";
+
+  // LaTeX
+  let latex = [];
+  latex.push(`\\normalsize \\question[${value}] ${qtext}`);
+  latex.push(matrix);
+  latex.push("\\Large{\\begin{verbatim}");
+  latex.push(encoded);
+  latex.push("\\end{verbatim}}");
+  latex.push("\\vfill \n\\uplevel{\\hrulefill}");
+  await setLatexOrEmbedOutput("latexOutput", revealKeyword, "hill", {
+    cipherType: "Hill",
+    aristoType: "K2",
+    questionText: questionTextWithValue(value, qtext),
+    cipherText: encoded,
+    correctAnswer: lettersOnlyAnswer(plaintext)
+  }, latex.join("\n"));
+}
+
+function downloadLatex(){
+  const text = document.getElementById("latexOutput").value;
+  const blob = new Blob([text], {type: "text/plain"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "hillcipher.tex";
+  a.click();
+}
+</script>
+
+</body>
+</html>

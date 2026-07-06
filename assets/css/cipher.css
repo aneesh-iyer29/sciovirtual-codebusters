@@ -1,0 +1,133 @@
+/* =========================================================================
+   cipher.css — themed styling for the interactive solvers (cipher-engine.js)
+   Depends on the tokens in base.css.
+   ========================================================================= */
+
+.cb {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: clamp(1.2rem, 3vw, 2rem);
+}
+.cb.cb-solved { border-color: var(--teal); box-shadow: 0 0 0 3px var(--teal-soft), var(--shadow); }
+
+.cb-question {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.08rem;
+  line-height: 1.5;
+  color: var(--ink);
+  border-left: 4px solid var(--indigo);
+  background: var(--lavender);
+  padding: .9rem 1.1rem;
+  border-radius: 0 12px 12px 0;
+  margin-bottom: 1.6rem;
+}
+
+.cb-board { overflow-x: auto; padding-bottom: .3rem; }
+
+/* rows of words / stream of characters */
+.cb-grid { display: flex; flex-wrap: wrap; gap: .55rem 0; align-items: flex-start; }
+.cb-stream { gap: .35rem 0; }
+.cb-word { display: flex; flex-wrap: nowrap; margin-right: 1.1rem; }
+.cb-stack { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 0 2px; }
+.cb-groupend { margin-right: .8rem; }
+
+/* the code cells — the signature material of the site */
+.cb-cell {
+  width: 34px; height: 34px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+  border: 1.5px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--paper);
+  text-transform: uppercase;
+  box-sizing: border-box;
+  padding: 0;
+  transition: border-color .12s ease, box-shadow .12s ease, background .12s ease;
+}
+.cb-cell:focus { outline: none; border-color: var(--indigo); box-shadow: var(--ring); background: #fff; }
+
+.cb-cell.is-cipher {
+  background: var(--night);
+  color: #eef0ff;
+  border-color: var(--night);
+  cursor: default;
+}
+.cb-cell.is-answer { background: var(--paper); }
+.cb-cell.is-key {
+  background: var(--gold-soft);
+  border-color: #f2d69b;
+  border-style: dashed;
+  color: #9a6410;
+}
+.cb-cell.is-space { border: none; background: transparent; width: 14px; pointer-events: none; }
+.cb-cell.is-punct { background: var(--lavender-2); color: var(--muted); border-color: var(--line); cursor: default; }
+.cb-cell.is-mark { background: #fff; border-style: dashed; }
+
+/* solved state: answer cells settle to teal */
+.cb-solved .cb-cell.is-answer { background: var(--teal-soft); border-color: var(--teal); color: #146a5c; }
+
+/* morse */
+.cb-morse-grid .cb-stack { gap: 3px; }
+.cb-triple .cb-row { display: flex; gap: 3px; }
+.cb-cell.is-morse { font-size: 1.25rem; line-height: 1; }
+.cb-cell.m-dash { font-size: 1.1rem; }
+
+.cb-morse-table { display: flex; flex-wrap: wrap; gap: 4px; margin-top: .8rem; }
+.cb-morse-col { display: flex; flex-direction: column; align-items: center; }
+.cb-morse-key { width: 28px; height: 28px; font-size: .85rem; border-radius: 7px; }
+.cb-morse-sym {
+  width: 28px; height: 24px; font-size: 1rem; border: 1px solid var(--line);
+  background: var(--mist); color: var(--indigo-700); border-radius: 6px; margin-top: 3px;
+  pointer-events: none;
+}
+
+/* auxiliary panels (freq table, polybius square, replacement table) */
+.cb-aux { margin-top: 1.8rem; }
+.cb-aux-label {
+  font-family: var(--font-mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: .7rem;
+}
+
+/* polybius square */
+.cb-square { display: grid; grid-template-columns: repeat(6, 38px); gap: 6px; }
+.cb-square .cb-cell { width: 38px; height: 38px; }
+
+/* frequency table */
+.cb-freq-wrap { overflow-x: auto; }
+.cb-freq { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 640px; }
+.cb-freq th, .cb-freq td {
+  border: 1px solid var(--line); text-align: center; padding: 6px 0;
+  font-family: var(--font-mono); font-size: .85rem; width: 3.7%;
+}
+.cb-freq th { background: var(--night); color: #eef0ff; font-weight: 700; }
+.cb-freq td { color: var(--muted); background: var(--mist); }
+.cb-freq td.cb-freq-key { background: var(--gold-soft); padding: 3px; }
+.cb-freq-key .cb-cell { width: 100%; height: 26px; border: none; background: transparent; font-size: .85rem; }
+.cb-freq-key .cb-cell:focus { box-shadow: inset 0 0 0 2px var(--gold); }
+
+/* actions + result */
+.cb-actions { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: 1.8rem; }
+.cb-result { margin-top: 1rem; font-family: var(--font-display); font-weight: 600; min-height: 1.5em; }
+.cb-result.is-correct { color: #14856f; }
+.cb-result.is-wrong { color: #c0392b; }
+.cb-check-mark {
+  display: inline-grid; place-items: center; width: 1.5em; height: 1.5em; border-radius: 999px;
+  background: var(--teal); color: #fff; font-size: .8em; margin-right: .25rem; vertical-align: middle;
+}
+.cb-keyword {
+  display: inline-block; margin-left: .5rem; padding: .2rem .7rem; border-radius: 999px;
+  background: var(--gold-soft); color: #9a6410; font-family: var(--font-mono); font-weight: 700; font-size: .9rem;
+}
+.cb-keyword b { color: #7a4e08; }
+
+@media (max-width: 560px) {
+  .cb-cell { width: 30px; height: 30px; font-size: .9rem; }
+  .cb-square { grid-template-columns: repeat(6, 32px); }
+  .cb-square .cb-cell { width: 32px; height: 32px; }
+}

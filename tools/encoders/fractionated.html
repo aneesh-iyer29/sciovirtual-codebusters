@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fractionated Morse Generator</title>
+  <link rel="stylesheet" href="cipherstyle.css">  
+</head>
+<body>
+  <h1>Fractionated Morse Cipher Generator</h1>
+  <form id="fracForm" onsubmit="event.preventDefault(); generateFractionated();">
+    
+    <label>
+      Question Text:
+      <textarea id="qtext" rows="2" required>Solve this Fractionated Morse cipher.</textarea>
+    </label>
+
+    <label>
+      Value:
+      <input type="number" id="value" value="250" required>
+    </label>
+
+    <label>
+      Plaintext:
+      <textarea id="plaintext" rows="3" required></textarea>
+    </label>
+
+    <label>
+      Keyword:
+      <input type="text" id="keyword" required>
+    </label>
+
+    <label>
+      Crib:
+      <input type="text" id="crib">
+    </label>
+
+    <label>
+      Hint Type:
+      <select id="hintType">
+        <option value="Start Crib">Start Crib</option>
+        <option value="Middle Crib">Middle Crib</option>
+        <option value="End Crib">End Crib</option>
+      </select>
+    </label>
+
+    <label>
+      Hint (for Middle/End cribs):
+      <input type="text" id="hint">
+    </label>
+
+    <label>
+      Reveal Keyword (optional):
+      <input type="text" id="revealKeyword">
+    </label>
+
+    <button type="submit">Generate</button>
+  </form>
+
+  <div class="divider"></div>
+
+  <div class="preview">
+    <h2>Preview</h2>
+    <div id="fracPreview"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="output">
+    <h2>LaTeX Output</h2>
+    <textarea id="latexOutput" readonly></textarea>
+    <button onclick="downloadLatex()">Download LaTeX</button>
+  </div>
+
+  <script src="embed-output.js"></script>
+  <script>
+    // --- Utility Functions ---
+    function fracAlphabet(keyword) {
+      keyword = keyword.toUpperCase();
+      let seen = new Set();
+      let unique = "";
+      for (let c of keyword) if (!seen.has(c)) { unique += c; seen.add(c); }
+      let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      let remaining = [...alphabet].filter(c => !seen.has(c)).join('');
+      return unique + remaining;
+    }
+
+    function morseCode(message) {
+      const morseDict = {
+        'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....',
+        'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.',
+        'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+        'Y': '-.--', 'Z': '--..', '0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-', 
+        '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.'
+      };
+      return message.toUpperCase().split('').map(ch => morseDict[ch] || '').join("x") + "x";
+    }
+
+    function fractionatedEncoder(s, keyword) {
+      let a = fracAlphabet(keyword);
+      let b = a.split('');
+      let fmorse = {
+        "...": b[0], "..-": b[1], "..x": b[2], ".-.": b[3], ".--": b[4],
+        ".-x": b[5], ".x.": b[6], ".x-": b[7], ".xx": b[8], "-..": b[9],
+        "-.-": b[10], "-.x": b[11], "--.": b[12], "---": b[13], "--x": b[14],
+        "-x.": b[15], "-x-": b[16], "-xx": b[17], "x..": b[18], "x.-": b[19],
+        "x.x": b[20], "x-.": b[21], "x--": b[22], "x-x": b[23], "xx.": b[24],
+        "xx-": b[25]
+      };
+      if (s.replace(/ /g,"").length % 3 === 1) s += "xx";
+      if (s.replace(/ /g,"").length % 3 === 2) s += "x";
+      let x = 0, encoded = "";
+      while (x < s.length) {
+        if (s[x] === " ") { encoded += " "; x++; continue; }
+        encoded += fmorse[s.substr(x,3)];
+        x += 3;
+      }
+      return encoded;
+    }
+
+    function wordBreaker(s) {
+      let message = morseCode(s);
+      let arr = [...message];
+      let morse = "", pending = "";
+      for (let x=0; x < arr.length-1; x++) {
+        let temp = arr[x] + arr[x+1];
+        if (temp === "xx") {
+          if (x % 3 === 0) { morse += " " + arr[x]; pending=""; }
+          else if (x % 3 === 1) { morse += arr[x]; pending=" "; }
+          else { morse += arr[x] + " "; pending=""; }
+        } else {
+          morse += arr[x] + pending;
+          pending = "";
+        }
+      }
+      return morse;
+    }
+
+    function fracFormatSentence(s) {
+      let words = s.split(" ");
+      let formatted = "", line = "", len = 0;
+      for (let w of words) {
+        if (len + w.length + 1 > 21) {
+          formatted += line.trim() + "\n\n\n";
+          line = w + " "; len = w.length+1;
+        } else { line += w + " "; len += w.length+1; }
+      }
+      return formatted + line.trim();
+    }
+
+    async function generateFractionated() {
+      const qtext = document.getElementById("qtext").value;
+      const value = document.getElementById("value").value;
+      const plaintext = document.getElementById("plaintext").value;
+      const keyword = document.getElementById("keyword").value;
+      const crib = document.getElementById("crib").value;
+      const hintType = document.getElementById("hintType").value;
+      const hint = document.getElementById("hint").value;
+      const revealKeyword = document.getElementById("revealKeyword").value;
+
+      let encoded = fractionatedEncoder(wordBreaker(plaintext), keyword.replace(/ /g,""));
+      let formatted = fracFormatSentence(encoded).replace(/ /g,"");
+      let pretty = "";
+      for (let i = 0; i < formatted.length; i++) {
+        if (formatted[i] === "\n") {
+            pretty += "\n"; // preserve newline, no extra spaces
+        } else {
+            pretty += " " + formatted[i] + " "; // space before and after letters
+        }
+      }
+
+
+
+      let latex = `\\normalsize \\question[${value}] ${qtext}\n`;
+      if (hintType === "Start Crib") 
+        latex += `You are told the plaintext begins with \\textbf{${crib}}.\n`;
+      if (hintType === "Middle Crib") 
+        latex += `You are told the plaintext contains \\textbf{${crib}} corresponding to \\textbf{${hint}}.\n`;
+      if (hintType === "End Crib") 
+        latex += `You are told the plaintext ends with \\textbf{${crib}} and \\textbf{${hint} Xs of padding}.\n`;
+
+      latex += "\n\\Large{\n\\begin{verbatim}\n" + pretty + "\n\\end{verbatim}}\n\\vfill\n\\uplevel{\\hrulefill}";
+
+      document.getElementById("fracPreview").innerHTML = "<pre>"+pretty+"</pre>";
+      let embedQuestion = qtext;
+      if (hintType === "Start Crib") {
+        embedQuestion += ` You are told the plaintext begins with ${crib}.`;
+      }
+      if (hintType === "Middle Crib") {
+        embedQuestion += ` You are told the plaintext contains ${crib} corresponding to ${hint}.`;
+      }
+      if (hintType === "End Crib") {
+        embedQuestion += ` You are told the plaintext ends with ${crib} and ${hint} Xs of padding.`;
+      }
+      await setLatexOrEmbedOutput("latexOutput", revealKeyword, "fractionatedmorse", {
+        cipherType: "Fractionated Morse",
+        aristoType: "Normal",
+        questionText: questionTextWithValue(value, embedQuestion),
+        cipherText: pretty,
+        correctAnswer: lettersOnlyAnswer(plaintext)
+      }, latex);
+    }
+
+    function downloadLatex() {
+      const text = document.getElementById('latexOutput').value;
+      const blob = new Blob([text], {type: "text/plain"});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = "fractionated.tex";
+      a.click();
+    }
+  </script>
+</body>
+</html>

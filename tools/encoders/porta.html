@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Porta Cipher Generator</title>
+<link rel="stylesheet" href="cipherstyle.css">
+</head>
+<body>
+
+<h1>Porta Cipher Generator</h1>
+
+<form id="portaForm" onsubmit="event.preventDefault(); generatePortaCipher();">
+  <label>Question Text:<textarea id="qtext">Decode this Porta cipher.</textarea></label>
+  <label>Plaintext:<textarea id="plaintext" required></textarea></label>
+  <label>Keyword:<input type="text" id="keyword" required></label>
+  <label>Block Size:<input type="number" id="bs" value="5" required></label>
+  <label>Value:<input type="number" id="value" value="250" required></label>
+  <label>Crib/Hint (optional):<input type="text" id="hint"></label>
+  <label>Reveal Keyword (optional):<input type="text" id="revealKeyword"></label>
+  <button type="submit">Generate</button>
+</form>
+
+<div class="divider"></div>
+
+<div class="preview">
+<h2>Preview</h2>
+<div id="cipherOutput"><pre></pre></div>
+</div>
+
+<div class="divider"></div>
+
+<div class="output">
+<h2>LaTeX Output</h2>
+<textarea id="latexOutput" readonly rows="15"></textarea>
+<button onclick="downloadLatex()">Download LaTeX</button>
+</div>
+
+<script src="embed-output.js"></script>
+<script>
+function portaEncode(text, keyword, bs){
+    text = text.toUpperCase().replace(/[^A-Z]/g,"");
+    keyword = keyword.toUpperCase().replace(/[^A-Z]/g,"");
+
+    let encoded = [];
+    let b = [...keyword].map(c => c.charCodeAt(0) - 65);
+    let c = [...text].map(c => c.charCodeAt(0) - 65);
+
+    let x = 0;
+    for(let ele of c){
+        let value;
+        if(ele < 13){
+            value = (ele + Math.floor(b[x]/2)) % 13 + 13;
+        } else {
+            value = (ele - Math.floor(b[x]/2)) % 13;
+        }
+        x = (x + 1) % b.length;
+        encoded.push(String.fromCharCode(value + 65));
+    }
+
+    // format into blocks of size bs, multiple blocks per line
+    let result = "";
+    let blockCount = 0;
+    let blocksPerLine = bs < 7 ? 3 : 2; // match Python logic
+
+    for(let i = 0; i < encoded.length; i += bs){
+        let block = encoded.slice(i, i + bs).join("");
+        result += block + " ";
+        blockCount++;
+        if(blockCount === blocksPerLine){
+            result += "\n\n\n";
+            blockCount = 0;
+        }
+    }
+
+    return result.trim();
+}
+
+async function generatePortaCipher(){
+    const qtext = document.getElementById("qtext").value;
+    const plaintext = document.getElementById("plaintext").value;
+    const keyword = document.getElementById("keyword").value;
+    const bs = parseInt(document.getElementById("bs").value);
+    const value = document.getElementById("value").value;
+    const hint = document.getElementById("hint").value;
+    const revealKeyword = document.getElementById("revealKeyword").value;
+
+    const encoded = portaEncode(plaintext, keyword, bs);
+
+    // Preview
+    document.getElementById("cipherOutput").innerHTML = "<pre>"+encoded+"</pre>";
+
+    // LaTeX
+    let latex = [];
+    latex.push(`\\normalsize \\question[${value}] ${qtext}`);
+    latex.push("\\Large{\\begin{verbatim}");
+    latex.push(encoded);
+    latex.push("\\end{verbatim}}");
+    latex.push("\\vfill");
+    latex.push("\\uplevel{\\hrulefill}");
+
+    await setLatexOrEmbedOutput("latexOutput", revealKeyword, "porta", {
+        cipherType: "Porta",
+        aristoType: "K2",
+        questionText: questionTextWithValue(value, qtext),
+        cipherText: encoded,
+        correctAnswer: lettersOnlyAnswer(plaintext)
+    }, latex.join("\n"));
+}
+
+function downloadLatex(){
+    const text = document.getElementById("latexOutput").value;
+    const blob = new Blob([text], {type: "text/plain"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "porta_cipher.tex";
+    a.click();
+}
+</script>
+
+</body>
+</html>

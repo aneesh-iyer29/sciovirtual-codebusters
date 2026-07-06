@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ScioVirtual Codebusters · Advanced · ScioCamp 2026</title>
+  <meta name="description" content="Home base for ScioVirtual's Advanced Codebusters course: interactive cipher tools, recordings, the syllabus, and practice you can solve right in the browser.">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Lato:wght@400;700&display=swap">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <script type="module" src="/assets/js/site.js"></script>
+  <style>
+    /* ---- home-only styles ---- */
+    .hero {
+      position: relative; overflow: hidden;
+      background: var(--indigo); color: #fff;
+      text-align: center;
+    }
+    .hero-circle {
+      position: absolute; top: 0; left: 55vw;
+      width: 75vw; height: 75vw; max-height: 140vh;
+      background: #201f56; opacity: .1; border-radius: 100%;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+    .hero-inner {
+      position: relative;
+      padding-block: clamp(3.5rem, 9vw, 6.5rem) clamp(4rem, 8vw, 6rem);
+      max-width: 780px;
+    }
+    .hero-kicker {
+      font-family: var(--font-display); font-weight: 600; font-size: .95rem;
+      color: rgba(255,255,255,.8); margin: 0 0 1rem;
+    }
+    .hero h1 {
+      color: #fff; font-size: clamp(28px, 4.5vw, 45px);
+      line-height: 1.2; margin: 0 0 1.2rem;
+    }
+    .hero-lead {
+      font-size: clamp(1.02rem, 1.8vw, 1.15rem); color: rgba(255,255,255,.88);
+      max-width: 56ch; margin: 0 auto 2.2rem;
+    }
+    .hero-cta { display: flex; flex-wrap: wrap; gap: .9rem; justify-content: center; }
+    /* white notch at the hero's base, from sciovirtual.org */
+    .hero-notch {
+      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 60px; height: 30px; background: #fff;
+      border-top-left-radius: 30px; border-top-right-radius: 30px;
+    }
+
+    /* quick links */
+    .ql h3 { margin: 0 0 .4rem; }
+    .ql p { color: var(--muted); margin: 0 0 1rem; }
+    .ql .go { margin-top: auto; font-family: var(--font-display); font-weight: 600; color: var(--indigo); }
+    .ql .card-link { display: flex; flex-direction: column; height: 100%; }
+
+    /* instructors: big cards with photos */
+    .inst-grid { display: grid; gap: 1.8rem; grid-template-columns: repeat(2, 1fr); margin-top: 2rem; }
+    @media (max-width: 760px) { .inst-grid { grid-template-columns: 1fr; } }
+    .inst-card { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+    .inst-card img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
+    .inst-body { padding: 1.4rem 1.6rem 1.6rem; }
+    .inst-name { font-family: var(--font-display); font-weight: 600; font-size: 1.25rem; margin: 0; }
+    .inst-role { font-family: var(--font-display); font-weight: 500; font-size: .88rem; color: var(--teal-text); margin: .15rem 0 .8rem; }
+    .inst-body p { color: var(--ink-2); margin: 0; }
+
+    /* teal closing band, like the sciovirtual.org statement section */
+    .cta-teal { background: var(--teal); color: #fff; text-align: center; }
+    .cta-teal h2 { color: #fff; }
+    .cta-teal p { color: rgba(255,255,255,.92); max-width: 52ch; margin: 0 auto 1.8rem; }
+
+    .section-alt { background: var(--lavender); }
+  </style>
+</head>
+<body>
+  <main id="main">
+
+    <!-- ============ HERO ============ -->
+    <section class="hero">
+      <div class="hero-circle" aria-hidden="true"></div>
+      <div class="wrap hero-inner">
+        <p class="hero-kicker">ScioCamp 2026 · Advanced Course</p>
+        <h1>Advanced Codebusters</h1>
+        <p class="hero-lead">Welcome! This site hosts the interactive tools we use during our sessions and the resources we publish after each lesson: walkthroughs, practice sets, slides, and recordings.</p>
+        <div class="hero-cta">
+          <a class="btn btn-teal" href="/daily-questions/day-1/">Start Day 1</a>
+          <a class="btn btn-light" href="/course-information/course-plan.html">See the course plan</a>
+        </div>
+      </div>
+      <div class="hero-notch" aria-hidden="true"></div>
+    </section>
+
+    <!-- ============ QUICK LINKS ============ -->
+    <section class="section">
+      <div class="wrap">
+        <span class="eyebrow">Start here</span>
+        <h2 style="max-width: 24ch;">Everything for the course, in one place.</h2>
+        <div class="grid grid-3 ql" style="margin-top: 2rem;">
+          <a class="card card-link" href="/course-information/course-plan.html">
+            <h3>Course plan</h3>
+            <p>The full syllabus and week-by-week schedule, from Aristocrats and Xenocrypts through Hill, Porta, and Fractionated Morse.</p>
+            <span class="go">See the plan →</span>
+          </a>
+          <a class="card card-link" href="/daily-questions/day-1/">
+            <h3>Daily questions</h3>
+            <p>Walkthroughs, warm-ups, and interactive practice sets you can solve and check right in the browser, one folder per day.</p>
+            <span class="go">Go to Day 1 →</span>
+          </a>
+          <a class="card card-link" href="/slides-recordings/day-1.html">
+            <h3>Slides &amp; recordings</h3>
+            <p>Missed a session or want a rewatch? Every lesson's slides and recording are posted here afterward.</p>
+            <span class="go">Watch recordings →</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ INSTRUCTORS ============ -->
+    <section class="section section-alt">
+      <div class="wrap">
+        <span class="eyebrow">Your instructors</span>
+        <h2 style="max-width: 24ch;">Meet the team.</h2>
+        <div class="inst-grid">
+          <article class="card inst-card">
+            <img src="/assets/img/instructors/aneesh.jpg" alt="Aneesh Iyer">
+            <div class="inst-body">
+              <h3 class="inst-name">Aneesh Iyer</h3>
+              <p class="inst-role">Georgia Tech · Computer Engineering</p>
+              <p>hi im aneesh and u guys liked me last year hopefully u still like me</p>
+            </div>
+          </article>
+          <article class="card inst-card">
+            <img src="/assets/img/instructors/arthur.jpg" alt="Arthur Armaing">
+            <div class="inst-body">
+              <h3 class="inst-name">Arthur Armaing</h3>
+              <p class="inst-role">Georgia Tech · Computer Science</p>
+              <p>Hey there! I'm Arthur, a Harriton High School graduate and now a Computer Science student at Georgia Tech. I competed in Codebusters for three years, earning several medals and a top-10 finish at nationals, along with awards in Optics and robotics.</p>
+            </div>
+          </article>
+          <article class="card inst-card">
+            <img src="/assets/img/instructors/simon.jpg" alt="Simon Bhuiyan">
+            <div class="inst-body">
+              <h3 class="inst-name">Simon Bhuiyan</h3>
+              <p class="inst-role">Plymouth High School · Michigan</p>
+              <p>Hi! I'm Simon, a rising junior at Plymouth High School in Michigan. I've done Science Olympiad for five years and Codebusters for three, and I also compete in math and robotics.</p>
+            </div>
+          </article>
+          <article class="card inst-card">
+            <img src="/assets/img/instructors/iniya.jpg" alt="Iniya Karthik">
+            <div class="inst-body">
+              <h3 class="inst-name">Iniya Karthik</h3>
+              <p class="inst-role">Westwood High School · Texas</p>
+              <p>Hey y'all! I'm Iniya, a rising freshman at Westwood High School in Texas. I've competed in Division B Science Olympiad for three years, and this year I was the national runner-up in Codebusters.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ INTRO VIDEO ============ -->
+    <section class="section">
+      <div class="wrap narrow">
+        <span class="eyebrow">Watch first</span>
+        <h2>Course introduction</h2>
+        <p style="color: var(--muted); max-width: 60ch;">A quick tour of how the course runs and how to get the most out of the sessions.</p>
+        <div class="embed embed-video" style="margin-top: 1.4rem;">
+          <iframe src="https://drive.google.com/file/d/1NbJebfHQed6RPwvFKkmS5UqURfvGDUcE/preview" title="Course introduction video" allow="autoplay" allowfullscreen loading="lazy"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CTA ============ -->
+    <section class="section cta-teal">
+      <div class="wrap narrow">
+        <h2>Ready to start?</h2>
+        <p>Day 1 opens with K1 and K2 walkthroughs, a warm-up, and a full interactive practice set.</p>
+        <a class="btn btn-light" href="/daily-questions/day-1/">Start Day 1</a>
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

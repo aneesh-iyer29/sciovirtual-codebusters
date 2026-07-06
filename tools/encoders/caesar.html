@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Caesar Cipher Generator</title>
+  <link rel="stylesheet" href="cipherstyle.css">  
+</head>
+<body>
+  <h1>Caesar Cipher Encoder</h1>
+  <form id="cipherForm" onsubmit="event.preventDefault(); generateCipher();">
+    <label>
+      Question Text:
+      <textarea id="qtext" required>Decode this phrase that was encoded using the Caesar cipher.</textarea>
+    </label>
+
+    <label>
+      Plaintext:
+      <textarea id="plaintext" required></textarea>
+    </label>
+
+    <label>
+      Value:
+      <input type="number" id="value" value="250" required>
+    </label>
+
+    <label>
+      Shift:
+      <input type="number" id="shift" value="3">
+    </label>
+
+    <label>
+      Reveal Keyword (optional):
+      <input type="text" id="revealKeyword">
+    </label>
+
+    <button type="submit">Generate</button>
+  </form>
+
+  <div class="divider"></div>
+
+  <div class="preview">
+    <h2>Preview</h2>
+    <div id="cipherOutput" class="cipher"></div>
+    <div id="plainOutput" class="plain"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="output">
+    <h2>LaTeX Output</h2>
+    <textarea id="latexOutput" readonly></textarea>
+    <button onclick="downloadLatex()">Download LaTeX</button>
+  </div>
+
+  <script src="embed-output.js"></script>
+  <script>
+    function caesarEncoder(s, shift, bs) {
+      s = s.toUpperCase().replace(/[^A-Z]/g, "");
+      let encoded = [];
+      for (let i = 0; i < s.length; i++) {
+        let val = (s.charCodeAt(i) - 65 + shift) % 26;
+        encoded.push(String.fromCharCode(val + 65));
+      }
+      let nospace = encoded.join("");
+      let spaced = "";
+      for (let i = 0; i < nospace.length; i++) {
+        spaced += nospace[i];
+        if (i % bs === bs - 1) spaced += " ";
+      }
+      return spaced.trim();
+    }
+
+    function caesarFormatSentence(s) {
+      let words = s.split(/\s+/);
+      let formatted = "", line = "", len = 0;
+      for (let word of words) {
+        if (len + word.length + 1 > 52) {
+          formatted += line.trim() + "\n\n\n";
+          line = word + " ";
+          len = word.length + 1;
+        } else {
+          line += word + " ";
+          len += word.length + 1;
+        }
+      }
+      formatted += line.trim();
+      return formatted;
+    }
+
+    function caesarFormatter(qtext, s, shift, value) {
+      let encoded = caesarEncoder(s, shift, 5);
+      let formatted = caesarFormatSentence(encoded);
+      let result = [];
+      result.push(`\\normalsize \\question[${value}] ${qtext}`);
+      result.push("\n\\Large{");
+      result.push("\\begin{verbatim}");
+      result.push(formatted + "\n");
+      result.push("\\end{verbatim}}");
+      result.push("\\vfill \n");
+      result.push("\\uplevel{\\hrulefill}");
+      return result.join("\n");
+    }
+
+    async function generateCipher() {
+      const qtext = document.getElementById('qtext').value;
+      const s = document.getElementById('plaintext').value;
+      const value = document.getElementById('value').value;
+      const shift = parseInt(document.getElementById('shift').value) || 0;
+      const revealKeyword = document.getElementById('revealKeyword').value;
+
+      const latex = caesarFormatter(qtext, s, shift, value);
+
+      const encoded = caesarEncoder(s, shift, 5);
+      const formatted = caesarFormatSentence(encoded);
+      await setLatexOrEmbedOutput("latexOutput", revealKeyword, "aristocrat", {
+        cipherType: "Aristocrat",
+        aristoType: "Caesar",
+        questionText: questionTextWithValue(value, qtext),
+        cipherText: formatted,
+        correctAnswer: lettersOnlyAnswer(s)
+      }, latex);
+
+      document.getElementById('cipherOutput').innerHTML = "<pre>" + formatted + "</pre>";
+      document.getElementById('plainOutput').innerHTML = "<pre>" + s.toUpperCase().replace(/[^A-Z]/g," ") + "</pre>";
+    }
+
+    function downloadLatex() {
+      const text = document.getElementById('latexOutput').value;
+      const blob = new Blob([text], {type: "text/plain"});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = "cipher.tex";
+      a.click();
+    }
+  </script>
+</body>
+</html>

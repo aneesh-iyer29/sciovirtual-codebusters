@@ -1,0 +1,10 @@
+# Static site, nothing to build. Netlify serves the repo root as-is and
+# resolves directory index.html files (so /daily-questions/day-1/ works).
+[build]
+  publish = "."
+  command = ""
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"

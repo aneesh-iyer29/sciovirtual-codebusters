@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Checkerboard Cipher Generator</title>
+<link rel="stylesheet" href="cipherstyle.css">
+</head>
+<body>
+
+<h1>Checkerboard Cipher Generator</h1>
+
+<form id="checkerboardForm" onsubmit="event.preventDefault(); generateCheckerboardCipher();">
+  <label>
+    Question Text:
+    <textarea id="qtext" required>Decode this Checkerboard cipher.</textarea>
+  </label>
+
+  <label>
+    Plaintext:
+    <textarea id="plaintext" required></textarea>
+  </label>
+
+  <label>
+    Horizontal Key (top row):
+    <input type="text" id="hkey" required>
+  </label>
+
+  <label>
+    Vertical Key (side column):
+    <input type="text" id="vkey" required>
+  </label>
+
+  <label>
+    Polybius Key (any length):
+    <input type="text" id="polybius" required>
+  </label>
+
+  <label>
+    Block Size:
+    <input type="number" id="bs" value="3" required>
+  </label>
+
+  <label>
+    Value:
+    <input type="number" id="value" value="250" required>
+  </label>
+
+  <label>
+    Reveal Keyword (optional):
+    <input type="text" id="revealKeyword">
+  </label>
+
+  <button type="submit">Generate</button>
+</form>
+
+<div class="divider"></div>
+
+<div class="preview">
+<h2>Preview</h2>
+<div id="cipherOutput"><pre></pre></div>
+</div>
+
+<div class="divider"></div>
+
+<div class="output">
+<h2>LaTeX Output</h2>
+<textarea id="latexOutput" readonly rows="15"></textarea>
+<button onclick="downloadLatex()">Download LaTeX</button>
+</div>
+
+<script src="embed-output.js"></script>
+<script>
+function checkerboardAlphabet(keyword){
+    keyword = keyword.toLowerCase().replace(/j/g,"i");
+    let seen = new Set();
+    let result = [];
+    for(let c of keyword){
+        if(c.match(/[a-z]/) && !seen.has(c)){
+            seen.add(c);
+            result.push(c);
+        }
+    }
+    let alphabet = "abcdefghiklmnopqrstuvwxyz";
+    for(let c of alphabet){
+        if(!seen.has(c)) result.push(c);
+    }
+    return result.join('');
+}
+
+function checkerboardEncoder(hkey, vkey, alph, s, bs){
+    hkey = hkey.toUpperCase();
+    vkey = vkey.toUpperCase();
+    alph = alph.toUpperCase();
+    s = s.replace(/[^a-zA-Z]/g,'').toUpperCase().replace(/J/g,"I");
+
+    let pkDict = {};
+    for(let i=0;i<5;i++){
+        for(let j=0;j<5;j++){
+            let idx = j + i*5;
+            if(idx < alph.length) pkDict[alph[idx]] = vkey[i] + hkey[j];
+        }
+    }
+
+    let encoded = [];
+    for(let c of s){
+        encoded.push(pkDict[c] || c);
+    }
+
+    // Nihilist-style spacing
+    let result = "";
+    let blockCount = 0;
+    let blocksPerLine = bs < 7 ? 3 : 2;
+
+    for (let i = 0; i < encoded.length; i += bs) {
+        let block = encoded.slice(i, i + bs).join(" ");
+        if(bs === 1){
+            result += block + " ";
+        } else {
+            result += block + "   ";
+        }
+        blockCount++;
+        if(blockCount === blocksPerLine){
+            result += "\n\n\n";
+            blockCount = 0;
+        }
+    }
+
+    return result.trim();
+}
+
+async function generateCheckerboardCipher(){
+    const qtext = document.getElementById("qtext").value;
+    const plaintext = document.getElementById("plaintext").value;
+    const hkey = document.getElementById("hkey").value;
+    const vkey = document.getElementById("vkey").value;
+    const poly = document.getElementById("polybius").value;
+    const bs = parseInt(document.getElementById("bs").value);
+    const value = document.getElementById("value").value;
+    const revealKeyword = document.getElementById("revealKeyword").value;
+
+    const alph = checkerboardAlphabet(poly);
+    const encoded = checkerboardEncoder(hkey,vkey,alph,plaintext,bs);
+
+    document.getElementById("cipherOutput").innerHTML = "<pre>"+encoded+"</pre>";
+
+    // LaTeX
+    let latex = [];
+    latex.push(`\\normalsize \\question[${value}] ${qtext}`);
+    latex.push("\\Large{\\begin{verbatim}");
+    latex.push(encoded);
+    latex.push("\\end{verbatim}}");
+    latex.push("\\begin{tabular}{|m{14pt}|m{14pt}|m{14pt}|m{14pt}|m{14pt}|}");
+    latex.push("\\hline");
+    latex.push("&&&&  \\\\");
+    latex.push("\\hline");
+    latex.push("&&&&  \\\\");
+    latex.push("\\hline");
+    latex.push("&&&&  \\\\");
+    latex.push("\\hline");
+    latex.push("&&&&  \\\\");
+    latex.push("\\hline");
+    latex.push("&&&&  \\\\");
+    latex.push("\\hline");
+    latex.push("\\end{tabular} \n");
+    latex.push("\\vfill \n");
+    latex.push("\\uplevel{\\hrulefill}");
+
+    await setLatexOrEmbedOutput("latexOutput", revealKeyword, "checkerboard", {
+        cipherType: "Checkerboard",
+        questionText: questionTextWithValue(value, qtext),
+        cipherText: encoded,
+        correctAnswer: lettersOnlyAnswer(plaintext)
+    }, latex.join("\n"));
+}
+
+function downloadLatex(){
+    const text = document.getElementById("latexOutput").value;
+    const blob = new Blob([text], {type: "text/plain"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "checkerboard_cipher.tex";
+    a.click();
+}
+</script>
+</body>
+</html>

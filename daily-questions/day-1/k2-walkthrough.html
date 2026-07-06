@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>K2 Walkthrough · Day 1 · ScioVirtual Codebusters</title>
+  <meta name="description" content="How a K2 Aristocrat differs from a K1, and how to read the keyword off the frequency table, with an interactive example.">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Lato:wght@400;700&family=Space+Mono:wght@400;700&display=swap">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/cipher.css">
+  <script type="module" src="/assets/js/site.js"></script>
+  <style>
+    .steps { counter-reset: step; list-style: none; padding: 0; margin: 1.6rem 0 0; display: grid; gap: 1rem; }
+    .steps li { position: relative; padding-left: 3.2rem; }
+    .steps li::before { counter-increment: step; content: counter(step, decimal-leading-zero);
+      position: absolute; left: 0; top: -2px; font-family: var(--font-mono); font-weight: 700; color: var(--teal);
+      background: var(--teal-soft); width: 2.4rem; height: 2.4rem; border-radius: 10px; display: grid; place-items: center; font-size: .85rem; }
+    .steps li b { font-family: var(--font-display); }
+  </style>
+</head>
+<body>
+  <main id="main">
+    <header class="page-head">
+      <div class="wrap">
+        <p class="crumbs"><a href="/">Home</a> / <a href="/daily-questions/day-1/">Day 1</a> / K2 Walkthrough</p>
+        <h1>K2 Aristocrat walkthrough</h1>
+        <p class="lead">A K2 Aristocrat is the mirror image of a K1: the <em>ciphertext</em> alphabet is the one built from a keyword. The solving moves are the same, but the frequency table gives you an extra gift.</p>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="wrap narrow prose">
+        <p class="eyebrow">K1 vs K2</p>
+        <h2>Same solve, different keyword hiding spot</h2>
+        <p>Everything from the K1 walkthrough still applies: count letters, break the short words, use contact patterns. The difference is <em>where the keyword lives</em>:</p>
+        <ul>
+          <li><b>K1:</b> the keyword is embedded in the <em>plaintext</em> alphabet.</li>
+          <li><b>K2:</b> the keyword is embedded in the <em>ciphertext</em> alphabet, so when you write your recovered plaintext under <code>A&nbsp;B&nbsp;C&nbsp;…</code> in the frequency table, the keyword tends to surface as a run of consecutive letters.</li>
+        </ul>
+        <ol class="steps">
+          <li><b>Solve a handful of letters</b> the usual way, enough to get traction on the replacement row.</li>
+          <li><b>Watch the replacement row.</b> In a K2 you'll often see the keyword appear straight across the table; use it to fill the rest of the alphabet.</li>
+          <li><b>Finish and verify</b> by reading the full quote back; it should be grammatical, not just plausible.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section-tight">
+      <div class="wrap">
+        <div data-cipher id="q"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/assets/js/cipher-engine.js"></script>
+  <script>
+    Codebusters.render("#q", {
+      cipherType: "Aristocrat",
+      aristoType: "K2",
+      questionText: "Solve this quote encoded with a K2 Aristocrat. Watch the replacement row for the keyword. What does it say?",
+      cipherText: "SPDELPE MJYKNDCH DS ECSDJY TBE IEST NCQT MR KY ELTDQE WEEG.",
+      correctAnswer: "SCIENCE OLYMPIAD IS EASILY THE BEST PART OF MY ENTIRE WEEK.",
+      revealKeyword: "CIPHER"
+    });
+  </script>
+</body>
+</html>
