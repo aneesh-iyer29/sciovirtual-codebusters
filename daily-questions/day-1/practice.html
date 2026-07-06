@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Day 1 Practice · ScioVirtual Codebusters</title>
-  <meta name="description" content="Six interactive Codebusters problems for Day 1: Affine, Porta, Nihilist, Checkerboard, Baconian, and Fractionated Morse.">
+  <meta name="description" content="The Day 1 practice problems: a K1 and a K2 Aristocrat you can solve and check live.">
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,7 +23,7 @@
       <div class="wrap">
         <p class="crumbs"><a href="/">Home</a> / <a href="/daily-questions/day-1/">Day 1</a> / Practice</p>
         <h1>Day 1 practice set</h1>
-        <p class="lead">Six problems across six cipher types. Work them in any order; each one checks live and reveals a keyword when you solve it.</p>
+        <p class="lead">Two Aristocrats: a K1 and a K2. Each one checks live; once you've solved it, work out the keyword and send it to an instructor.</p>
       </div>
     </header>
 
@@ -36,46 +36,20 @@
   <script>
     const QUESTIONS = [
       {
-        cipherType: "Affine",
-        questionText: "[160] Upon searching a room, the following were found on scraps of paper. You realize it's encoded as an Affine with a = 15 and b = 2. What does it say?",
-        cipherText: "D C A M B K X M C X K C R S O V K C L R Q B O Q S P K C T S O M C X K A Q G D R S O O K X",
-        correctAnswer: "HAMSTERS ARE A BIG DEAL BUT GUINEA PIGS ARE MUCH BIGGER",
-        revealKeyword: "LIFESTYLE"
+        cipherType: "Aristocrat",
+        aristoType: "K1",
+        questionText: "A quote has been encoded using the Aristocrat Cipher using a K1 alphabet and an 8 letter keyword for you to decode. What is the keyword?",
+        cipherText: "NFUWJTZ'A PY AMR BZT ABIY AFBA KYMNUZ AU VUWMA, AFYR NAUJY AFY PGZT NAMBGEFA UWA UD XR VFYNA!",
+        correctAnswer: "SHOULDN'T WE TRY AND TAKE THAT PERSON TO COURT, THEY STOLE THE WIND STRAIGHT OUT OF MY CHEST!",
+        revealKeyword: "Send the keyword above"
       },
       {
-        cipherType: "Porta",
-        questionText: "[142] The following was found on a scrap of paper. You realize it's encoded as a Porta using a keyword of KNIGHT. What does it say?",
-        cipherText: "WCVBIZ SFZGQT WBLQKZ NMCQBK BISBUW PBLOLE WRHYCW RTJGYK ZIDDOF DX",
-        correctAnswer: "Every day I wake up, and I start to break up Lonely is a man without love",
-        revealKeyword: "ENGINEERING"
-      },
-      {
-        cipherType: "Nihilist",
-        questionText: "Decode this phrase encoded with the Nihilist Substitution cipher, using a keyword between 3 and 7 letters long. You are told the plaintext begins with THE RESEARCH.",
-        cipherText: "47467254555672336737752239537235 78355624384392423856662355536423 683585236834623379248244",
-        correctAnswer: "THE RESEARCH DONE BY TOP LEVEL SCIENTISTS IS AMAZING",
-        revealKeyword: "wow this was so cool"
-      },
-      {
-        cipherType: "Checkerboard",
-        questionText: "Solve this quote encoded with the Checkerboard Cipher. The 34th–39th cipher units (DI MN MO CR EI CN) decode to HERWAY. What does it say?",
-        cipherText: "INDIMNCRDY DOEIDNMOEI DNMRDNINDY DIMNMOMIIY INIYMOMNDI IYIOMYEIDN ENDYDNDIMN MOCREICNIN DYCRDYMODR",
-        correctAnswer: "The woman ran into her future husband on her way to work",
-        revealKeyword: "PLUNGER"
-      },
-      {
-        cipherType: "Baconian",
-        questionText: "[201] The following symbols encode a phrase using a Baconian alphabet. Mark each symbol, then decode. What does it say?",
-        cipherText: "0512340123460781234019523460123784091253406123748019253460123478012934056127348012349015234601237840129534016728935460123784012953640178239450167289534601234078912534067819234056123478091235",
-        correctAnswer: "i am an intelligent being doing stupid things",
-        revealKeyword: "BACON"
-      },
-      {
-        cipherType: "Fractionated Morse",
-        questionText: "You find this written on a cave wall, encoded as a Fractionated Morse. You're told the letters Z L I S D H Z correspond to D = ●×–, H = ●––, I = –●×, L = ––×, S = ●–●, Z = ××–. What does it say?",
-        cipherText: "M  T  U  V  C  P  B  A  S  E  F  W  M  P  D  E  O  F  C  M  I  J  Q  P  V  Y  D  Z  L  I  S  D  H  Z  T  Q  C  Q  V  M  A  V  L  K  P  M  I  P  A  C  M  I  O ",
-        correctAnswer: "the devil doesn't bargain, it only breaks your heart",
-        revealKeyword: "math"
+        cipherType: "Aristocrat",
+        aristoType: "K2",
+        questionText: "A quote has been encoded using the Aristocrat Cipher using a K2 alphabet and a 10 letter keyword for you to decode. What is the keyword?",
+        cipherText: "KRM XVI'G MVH DHFG EQWU HE MVHB GROIPF QIX PV, GRYBY'F IV EVOIG UYYEOIP MVH QBVHIX QIMTVBY.",
+        correctAnswer: "WHY DON'T YOU JUST PACK UP YOUR THINGS AND GO, THERE'S NO POINT KEEPING YOU AROUND ANYMORE.",
+        revealKeyword: "Send the keyword above"
       }
     ];
 

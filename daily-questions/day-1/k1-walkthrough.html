@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>K1 Walkthrough · Day 1 · ScioVirtual Codebusters</title>
-  <meta name="description" content="How to crack a K1 Aristocrat with frequency analysis, step by step, with an interactive example.">
+  <meta name="description" content="An interactive K1 Aristocrat walkthrough problem you can solve and check live.">
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,14 +12,6 @@
   <link rel="stylesheet" href="/assets/css/base.css">
   <link rel="stylesheet" href="/assets/css/cipher.css">
   <script type="module" src="/assets/js/site.js"></script>
-  <style>
-    .steps { counter-reset: step; list-style: none; padding: 0; margin: 1.6rem 0 0; display: grid; gap: 1rem; }
-    .steps li { position: relative; padding-left: 3.2rem; }
-    .steps li::before { counter-increment: step; content: counter(step, decimal-leading-zero);
-      position: absolute; left: 0; top: -2px; font-family: var(--font-mono); font-weight: 700; color: var(--indigo);
-      background: var(--lavender); width: 2.4rem; height: 2.4rem; border-radius: 10px; display: grid; place-items: center; font-size: .85rem; }
-    .steps li b { font-family: var(--font-display); }
-  </style>
 </head>
 <body>
   <main id="main">
@@ -27,28 +19,11 @@
       <div class="wrap">
         <p class="crumbs"><a href="/">Home</a> / <a href="/daily-questions/day-1/">Day 1</a> / K1 Walkthrough</p>
         <h1>K1 Aristocrat walkthrough</h1>
-        <p class="lead">A K1 Aristocrat is a monoalphabetic substitution where the plaintext alphabet is built from a keyword. Here's the method; then try it live on the example below.</p>
+        <p class="lead">Type a guessed plaintext letter under each cipher letter, then hit Check answer when you think you've got it.</p>
       </div>
     </header>
 
     <section class="section">
-      <div class="wrap narrow prose">
-        <p class="eyebrow">The method</p>
-        <h2>Five moves that crack almost any Aristocrat</h2>
-        <ol class="steps">
-          <li><b>Count the letters.</b> Fill the frequency table. The most common cipher letters are almost always <code>E</code>, <code>T</code>, <code>A</code>, <code>O</code>, <code>I</code>, <code>N</code>.</li>
-          <li><b>Attack the short words.</b> A one-letter word is <code>A</code> or <code>I</code>. Three-letter words are often <code>THE</code> or <code>AND</code>, a huge head start.</li>
-          <li><b>Use contact patterns.</b> A letter that appears right before an apostrophe + one letter is usually <code>N'T</code> or <code>'S</code>. Doubles (<code>LL</code>, <code>SS</code>, <code>OO</code>) narrow things fast.</li>
-          <li><b>Spread your guesses.</b> Every letter you place rules others out. Pencil them into the replacement row and let the words half-form.</li>
-          <li><b>Read the keyword.</b> As the alphabet fills in, the keyword often appears in your replacement row; confirm the last few letters from it.</li>
-        </ol>
-        <div class="callout" style="margin-top: 1.8rem;">
-          <p style="margin:0;">Type a guessed plaintext letter under each cipher letter. Auto-advance moves you along; arrow keys and Backspace let you jump around. Hit <b>Check answer</b> when you think you've got it.</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="section-tight">
       <div class="wrap">
         <div data-cipher id="q"></div>
       </div>
@@ -60,10 +35,10 @@
     Codebusters.render("#q", {
       cipherType: "Aristocrat",
       aristoType: "K1",
-      questionText: "Solve this quote encoded with a K1 Aristocrat. What does it say?",
-      cipherText: "QGA BESBLQBFA MX GBSYLF NAMNJA JABZL GMT QM MNAL EMMZP YP QGBQ QGAV EML'Q LAAE AJADQZYDYQV QM FAQ MRQ MX B ZMMK.",
-      correctAnswer: "THE ADVANTAGE OF HAVING PEOPLE LEARN HOW TO OPEN DOORS IS THAT THEY DON'T NEED ELECTRICITY TO GET OUT OF A ROOM.",
-      revealKeyword: "AEROSPACE"
+      questionText: "Solve the following Aristocrat as fast as you can. Message an instructor with the keyword once done (revealed after pressing the check answer button).",
+      cipherText: "UD OGKVLNKYPMG TQAMI AMGD FTHIM YH YPM HFMKV, JZY PM ZIMI PQI WHHT UHGM HNYMV YPKV YPM JMKFP",
+      correctAnswer: "MY GRANDFATHER LIVES VERY CLOSE TO THE OCEAN, BUT HE USES HIS POOL MORE OFTEN THAN THE BEACH",
+      revealKeyword: "CODE BEST EVENT"
     });
   </script>
 </body>

@@ -28,11 +28,11 @@ export const NAV = [
   ] },
 
   { label: "Daily Questions", href: "/daily-questions/", children: [
-    { label: "Day 1", href: "/daily-questions/day-1/", kicker: "Day 1 · Aristocrats", desc: "K1 & K2 walkthroughs, a warm-up, and a six-problem interactive practice set.", children: [
-      { label: "K1 Walkthrough", href: "/daily-questions/day-1/k1-walkthrough.html", kicker: "Walkthrough · K1", desc: "How to crack a K1 Aristocrat with frequency analysis, from first letter to keyword." },
-      { label: "K2 Walkthrough", href: "/daily-questions/day-1/k2-walkthrough.html", kicker: "Walkthrough · K2", desc: "The K2 twist: reading the keyword straight off the frequency table." },
+    { label: "Day 1", href: "/daily-questions/day-1/", kicker: "Day 1 · Aristocrats", desc: "K1 & K2 walkthroughs, a warm-up, and an interactive practice set.", children: [
+      { label: "K1 Walkthrough", href: "/daily-questions/day-1/k1-walkthrough.html", kicker: "Walkthrough · K1", desc: "A K1 Aristocrat to solve live. Message an instructor with the keyword once done." },
+      { label: "K2 Walkthrough", href: "/daily-questions/day-1/k2-walkthrough.html", kicker: "Walkthrough · K2", desc: "A K2 Aristocrat to solve live, as fast as you can." },
       { label: "Warm-up",        href: "/daily-questions/day-1/warmup.html", kicker: "Warm-up", desc: "One short Aristocrat to get your eye in before the practice set." },
-      { label: "Practice",       href: "/daily-questions/day-1/practice.html", kicker: "Practice · set of 6", desc: "Six interactive problems across Affine, Porta, Nihilist, Checkerboard, Baconian, and Fractionated Morse." },
+      { label: "Practice",       href: "/daily-questions/day-1/practice.html", kicker: "Practice · K1 & K2", desc: "Two Aristocrats to decode; work out each keyword and send it to an instructor." },
     ] },
   ] },
 
