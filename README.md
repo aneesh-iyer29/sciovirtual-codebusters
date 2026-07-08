@@ -2,7 +2,7 @@
 
 The course site for **ScioVirtual Advanced Codebusters** (ScioCamp 2026): a modern,
 static rebuild of the old Google Sites page, with the cipher tools baked in as
-first-class interactive templates and a one-command way to add new questions.
+first-class interactive templates and a one-command way to add new questions
 
 - **No build step, no framework.** Plain HTML/CSS/JS. Edit files, push, done.
 - **Interactive solvers.** Aristocrat, Affine, Porta, Hill, Baconian, Nihilist,
