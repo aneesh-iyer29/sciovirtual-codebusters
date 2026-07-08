@@ -11,6 +11,49 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Lato:wght@400;700&family=Space+Mono:wght@400;700&display=swap">
   <link rel="stylesheet" href="/assets/css/base.css">
   <script type="module" src="/assets/js/site.js"></script>
+
+  <!-- Page-scoped styles: homework PDF previews. Built on the shared design
+       tokens in base.css so it matches the rest of the site. -->
+  <style>
+    .hw-list { display: grid; gap: clamp(2.4rem, 5vw, 3.4rem); margin-top: .5rem; }
+
+    .hw-item .hw-head {
+      display: flex; align-items: center; flex-wrap: wrap; gap: .7rem;
+      margin-bottom: 1rem;
+    }
+    .hw-item .hw-head h2 { margin: 0; }
+
+    /* Clipped preview: the iframe is taller than its frame and overflow is
+       hidden, so only the first slice of the (multi-page) PDF shows. */
+    .hw-preview {
+      position: relative; height: 440px; overflow: hidden;
+      border: 1px solid var(--line); border-radius: var(--radius);
+      background: var(--lavender); box-shadow: var(--shadow);
+    }
+    .hw-preview iframe {
+      width: 100%; height: 1000px; border: 0; display: block;
+      pointer-events: none;   /* preview only — full document opens in a new tab */
+    }
+    .hw-preview::after {
+      content: ""; position: absolute; inset: auto 0 0 0; height: 130px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0), var(--paper));
+      pointer-events: none;
+    }
+    .hw-preview .peek {
+      position: absolute; bottom: .85rem; left: 50%; transform: translateX(-50%);
+      font-family: var(--font-display); font-weight: 600; font-size: .8rem;
+      color: var(--muted); background: var(--paper);
+      padding: .3rem .9rem; border-radius: var(--radius-pill);
+      box-shadow: var(--shadow-sm); z-index: 1;
+    }
+
+    .hw-actions { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 1.15rem; }
+    .hw-submit { margin-top: 1.1rem; }
+    .hw-submit p:last-child { margin-bottom: 0; }
+    .hw-submit .lbl {
+      font-family: var(--font-display); font-weight: 600; color: var(--ink);
+    }
+  </style>
 </head>
 <body>
   <main id="main">
@@ -18,16 +61,64 @@
       <div class="wrap">
         <p class="crumbs"><a href="/">Home</a> / <a href="/course-information/course-plan.html">Course Info</a> / Homework</p>
         <h1>Homework</h1>
-        <p class="lead">Assignments and practice to do between sessions will be posted here.</p>
+        <p class="lead">Assignments and practice to do between sessions will be posted here. Preview each set below, download the PDF, and submit through the linked form.</p>
       </div>
     </header>
 
     <section class="section">
       <div class="wrap narrow">
-        <div class="soon">
-          <p class="mono">// awaiting_first_assignment</p>
-          <h2>Coming soon!</h2>
-          <p>Stay tuned: the first homework set goes up after Day 1.</p>
+        <div class="hw-list">
+
+          <!-- ============ Day 1 ============ -->
+          <article class="hw-item">
+            <div class="hw-head">
+              <span class="badge">Day 1</span>
+              <h2>Homework #1 · Aristocrats</h2>
+            </div>
+            <p style="color:var(--muted); margin-top:-.4rem;">A set of Aristocrat cipher practice. Preview the first page below, or open the full assignment to scroll and print.</p>
+
+            <div class="hw-preview">
+              <iframe src="/assets/hw/Sciovirtual-Day1-HW-Aristos.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH" title="Homework #1 · Aristocrats — preview" loading="lazy"></iframe>
+              <span class="peek">Preview — open the full PDF to see all pages</span>
+            </div>
+
+            <div class="hw-actions">
+              <a class="btn btn-primary" href="/assets/hw/Sciovirtual-Day1-HW-Aristos.pdf" download>Download PDF</a>
+              <a class="btn btn-ghost" href="/assets/hw/Sciovirtual-Day1-HW-Aristos.pdf" target="_blank" rel="noopener">View full PDF <span class="arrow">↗</span></a>
+            </div>
+
+            <div class="hw-submit callout teal">
+              <p><span class="lbl">Submit your work:</span> complete the assignment, then turn it in through the form below.</p>
+              <!-- TODO: replace EXAMPLE_LINK_1 with the Day 1 homework submission Google Form URL -->
+              <p><a href="EXAMPLE_LINK_1" target="_blank" rel="noopener">Open the Day 1 submission form <span class="arrow">↗</span></a></p>
+            </div>
+          </article>
+
+          <!-- ============ Day 2 ============ -->
+          <article class="hw-item">
+            <div class="hw-head">
+              <span class="badge">Day 2</span>
+              <h2>Homework #2 · Porta &amp; Columnar</h2>
+            </div>
+            <p style="color:var(--muted); margin-top:-.4rem;">Practice with the Porta and Columnar Transposition ciphers. Preview the first page below, or open the full assignment to scroll and print.</p>
+
+            <div class="hw-preview">
+              <iframe src="/assets/hw/Sciovirtual-Day2-HW-Porta%26Columnar.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH" title="Homework #2 · Porta & Columnar — preview" loading="lazy"></iframe>
+              <span class="peek">Preview — open the full PDF to see all pages</span>
+            </div>
+
+            <div class="hw-actions">
+              <a class="btn btn-primary" href="/assets/hw/Sciovirtual-Day2-HW-Porta%26Columnar.pdf" download>Download PDF</a>
+              <a class="btn btn-ghost" href="/assets/hw/Sciovirtual-Day2-HW-Porta%26Columnar.pdf" target="_blank" rel="noopener">View full PDF <span class="arrow">↗</span></a>
+            </div>
+
+            <div class="hw-submit callout teal">
+              <p><span class="lbl">Submit your work:</span> complete the assignment, then turn it in through the form below.</p>
+              <!-- TODO: replace EXAMPLE_LINK_2 with the Day 2 homework submission Google Form URL -->
+              <p><a href="EXAMPLE_LINK_2" target="_blank" rel="noopener">Open the Day 2 submission form <span class="arrow">↗</span></a></p>
+            </div>
+          </article>
+
         </div>
       </div>
     </section>
