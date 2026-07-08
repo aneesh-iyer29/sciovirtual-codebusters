@@ -8,7 +8,7 @@ first-class interactive templates and a one-command way to add new questions.
 - **Interactive solvers.** Aristocrat, Affine, Porta, Hill, Baconian, Nihilist,
   Checkerboard, Fractionated Morse and more; students type answers and check them live.
 - **Add questions from the terminal.** `npm run add:question` writes the page *and*
-  links it into the navigation for you.
+  links it into the navigation for you. 
 
 > **Full instructor guide:** see [`tools/README.md`](tools/README.md) for step-by-step
 > recipes (adding questions, pages, slides/recordings, and resource links).
