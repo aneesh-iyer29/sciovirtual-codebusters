@@ -87,11 +87,19 @@ export const NAV = [
       {
         "label": "Day 2",
         "href": "/daily-questions/day-2/",
+        "kicker": "Day 2 · Porta & Columnar",
+        "desc": "A warm-up on the Porta cipher to get your eye in.",
         "children": [
           {
             "label": "Warm-up",
-            "href": "/daily-questions/day-2/warm-up.html",
-            "kicker": "Porta",
+            "href": "/daily-questions/day-2/warmup.html",
+            "kicker": "Warm-up",
+            "desc": "One short Porta cipher to get your eye in; type your answer and check it live."
+          },
+          {
+            "label": "\"Porta Crypt Walkthrough\"",
+            "href": "/daily-questions/day-2/porta-walkthrough.html",
+            "kicker": "Walkthrough · Porta",
             "desc": "Type your answer under each cipher letter, then check it."
           }
         ]
