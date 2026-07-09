@@ -101,6 +101,12 @@ export const NAV = [
             "href": "/daily-questions/day-2/porta-walkthrough.html",
             "kicker": "Walkthrough · Porta",
             "desc": "Type your answer under each cipher letter, then check it."
+          },
+          {
+            "label": "Porta Question 1",
+            "href": "/daily-questions/day-2/porta-question-1.html",
+            "kicker": "Porta",
+            "desc": "Type your answer under each cipher letter, then check it."
           }
         ]
       }
