@@ -99,6 +99,28 @@ at it, or pass everything via `--json` with an `embedFile` / `embedHtml` / `url`
 
 ---
 
+## Add a homework assignment
+
+```bash
+npm run add:homework
+```
+
+Publishes a homework set on the **Homework** page from a PDF plus a submission-form link.
+It copies your PDF into `assets/hw/` (with a URL-safe name), builds the card — clipped
+preview, download button, "view full PDF", and the submission link — and appends it to the
+list. It does **not** create a page or a nav entry (the Homework page already exists), and it
+does **not** create the Google Form: you make the form and paste its share URL.
+
+Give it the PDF's path on your machine, a day number, a title, and the form URL. Batch mode:
+
+```bash
+node tools/add-homework.mjs --json my-homework.json   # {pdf, day, title, desc, formUrl}
+```
+
+See [`tools/README.md`](tools/README.md) for the full field list and the `--dry` / `--force` flags.
+
+---
+
 ## How it fits together
 
 ```
@@ -110,6 +132,7 @@ daily-questions/day-1/         Walkthroughs, warm-up, practice set (interactive)
 assets/
   css/base.css                 Design system (colors, type, nav, footer, cards)
   css/cipher.css               Styling for the interactive solvers
+  hw/                          Homework PDFs (served at /assets/hw/…)
   img/                         Logo, favicon, instructor photos
   js/nav.js                    <- single source of truth for navigation
   js/site.js                   Renders the header/nav/footer on every page
@@ -118,6 +141,7 @@ tools/
   README.md                    Step-by-step instructor guide for all of this
   add-question.mjs             Generator: new question page + nav link
   add-page.mjs                 Generator: new embed page + nav link
+  add-homework.mjs             Generator: homework card (PDF + form) on the Homework page
   navlib.mjs · templates/      Shared helpers + page templates
   encoders/                    Instructor tools: plaintext -> cipher text + embed
 ```

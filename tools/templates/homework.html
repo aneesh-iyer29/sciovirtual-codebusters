@@ -1,0 +1,23 @@
+<!-- ============ {{DAYLABEL}} ============ -->
+<article class="hw-item">
+  <div class="hw-head">
+    <span class="badge">{{DAYLABEL}}</span>
+    <h2>{{TITLE}}</h2>
+  </div>
+  <p style="color:var(--muted); margin-top:-.4rem;">{{DESC}}</p>
+
+  <div class="hw-preview">
+    <iframe src="{{PDF_HREF}}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" title="{{TITLE}} — preview" loading="lazy"></iframe>
+    <span class="peek">Preview — open the full PDF to see all pages</span>
+  </div>
+
+  <div class="hw-actions">
+    <a class="btn btn-primary" href="{{PDF_HREF}}" download>Download PDF</a>
+    <a class="btn btn-ghost" href="{{PDF_HREF}}" target="_blank" rel="noopener">View full PDF <span class="arrow">↗</span></a>
+  </div>
+
+  <div class="hw-submit callout teal">
+    <p><span class="lbl">Submit your work:</span> complete the assignment, then turn it in through the form below.</p>
+    <p><a href="{{FORM_URL}}" target="_blank" rel="noopener">Open the {{DAYLABEL}} submission form <span class="arrow">↗</span></a></p>
+  </div>
+</article>
