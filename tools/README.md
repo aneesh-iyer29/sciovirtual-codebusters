@@ -9,6 +9,7 @@ npm start             # serve the site at http://localhost:8000 (needed to previ
 npm run add:question  # new interactive cipher question
 npm run add:page      # new page from any embed (Form, Doc, Slides, video)
 npm run add:homework  # new homework assignment (PDF + submission form) on the Homework page
+npm run add:recording # new "Day N" slides & recording page from two Google links
 ```
 
 ---
@@ -167,24 +168,49 @@ Preview at <http://localhost:8000/course-information/homework.html>, then commit
 
 ## 4. Post slides and a recording for a day
 
-Each day has a page in `slides-recordings/` (e.g. `day-1.html`). It ships as a
-"Coming soon" placeholder with the real embed markup already in an HTML comment:
-
-1. Open the day's file and delete the `<div class="soon">...</div>` block.
-2. Uncomment the embed blocks below it and paste your Google Slides embed URL and
-   the Drive/YouTube video URL.
-
-For a **new** day, copy `day-1.html` to `day-<n>.html`, update the "Day 1" text, and
-add the nav entry in `assets/js/nav.js`:
-
-```js
-{ label: "Slides & Recordings", children: [
-  { label: "Day 1", href: "/slides-recordings/day-1.html" },
-  { label: "Day 2", href: "/slides-recordings/day-2.html" },
-] },
+```bash
+npm run add:recording
 ```
 
-(Or just run `npm run add:page` with the video URL and file it under Slides & Recordings.)
+Creates (or updates) the **Day N** page under **Slides & Recordings** from two Google
+links: the Drive recording and the Slides deck. Each page shows an inline video preview
+with an "Open the video in Google Drive" button, and a slides preview with an "Open the
+slides" button — the same layout as the Homework cards. The tool:
+
+1. pulls the file ids out of both share links and builds the embed + open URLs,
+2. writes `slides-recordings/day-N.html` from `tools/templates/recording.html`
+   (**if the page already exists it is deleted and rewritten** — that's how you update it), and
+3. adds/refreshes the **Slides & Recordings › Day N** nav entry, keeping the days in order.
+
+Answer the prompts:
+
+| Prompt | What to enter |
+| --- | --- |
+| Google Drive recording link | Any share link, e.g. `https://drive.google.com/file/d/FILEID/view?usp=sharing` |
+| Google Slides link | e.g. `https://docs.google.com/presentation/d/PRESID/edit?usp=sharing` |
+| Day number | `1`, `2`, ... (defaults to the next unused day) |
+
+> **You host the files on Google; the tool only links to and embeds them.** Make sure both
+> the recording and the deck are shared as **"Anyone with the link → Viewer"**, or students
+> will see an "access denied" box instead of the preview.
+
+### Batch mode (no prompts)
+
+```bash
+node tools/add-recording.mjs --json my-recording.json
+```
+
+```json
+{
+  "recording": "https://drive.google.com/file/d/FILEID/view?usp=sharing",
+  "slides": "https://docs.google.com/presentation/d/PRESID/edit?usp=sharing",
+  "day": "2"
+}
+```
+
+Add `--dry` to print the derived URLs and target page without writing anything.
+
+Preview at <http://localhost:8000/slides-recordings/day-N.html>, then commit and push.
 
 ---
 

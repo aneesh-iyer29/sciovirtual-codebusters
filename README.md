@@ -121,6 +121,26 @@ See [`tools/README.md`](tools/README.md) for the full field list and the `--dry`
 
 ---
 
+## Add a day's slides & recording
+
+```bash
+npm run add:recording
+```
+
+Creates (or updates) the **Day N** page under **Slides & Recordings** from two Google links —
+the Drive recording and the Slides deck. It builds the inline video/slides previews with
+"open in Google Drive/Slides" buttons, writes `slides-recordings/day-N.html` (replacing it if
+it already exists), and adds/refreshes the nav entry. You host the files on Google; the tool
+only embeds and links them, so share both as "Anyone with the link → Viewer".
+
+```bash
+node tools/add-recording.mjs --json my-recording.json   # {recording, slides, day}
+```
+
+See [`tools/README.md`](tools/README.md) for details and the `--dry` flag.
+
+---
+
 ## How it fits together
 
 ```
@@ -142,6 +162,7 @@ tools/
   add-question.mjs             Generator: new question page + nav link
   add-page.mjs                 Generator: new embed page + nav link
   add-homework.mjs             Generator: homework card (PDF + form) on the Homework page
+  add-recording.mjs            Generator: Day N slides & recording page + nav link
   navlib.mjs · templates/      Shared helpers + page templates
   encoders/                    Instructor tools: plaintext -> cipher text + embed
 ```

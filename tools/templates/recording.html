@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Day 1 · Slides &amp; Recordings · ScioVirtual Codebusters</title>
-  <meta name="description" content="Slides and the recording for Day 1 of Advanced Codebusters.">
+  <title>Day {{DAY}} · Slides &amp; Recordings · ScioVirtual Codebusters</title>
+  <meta name="description" content="Slides and the recording for Day {{DAY}} of Advanced Codebusters.">
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,9 +30,9 @@
   <main id="main">
     <header class="page-head">
       <div class="wrap">
-        <p class="crumbs"><a href="/">Home</a> / Slides &amp; Recordings / Day 1</p>
-        <h1>Day 1 slides &amp; recording</h1>
-        <p class="lead">Watch the Day 1 session below and flip through the deck. Open either one in Google Drive to go fullscreen, present, or download.</p>
+        <p class="crumbs"><a href="/">Home</a> / Slides &amp; Recordings / Day {{DAY}}</p>
+        <h1>Day {{DAY}} slides &amp; recording</h1>
+        <p class="lead">Watch the Day {{DAY}} session below and flip through the deck. Open either one in Google Drive to go fullscreen, present, or download.</p>
       </div>
     </header>
 
@@ -44,16 +44,16 @@
           <article class="sr-item">
             <div class="sr-head">
               <span class="badge">Recording</span>
-              <h2>Day 1 recording</h2>
+              <h2>Day {{DAY}} recording</h2>
             </div>
-            <p style="color:var(--muted); margin-top:-.4rem;">Watch the full Day 1 session below, or open it in Google Drive for fullscreen and download options.</p>
+            <p style="color:var(--muted); margin-top:-.4rem;">Watch the full Day {{DAY}} session below, or open it in Google Drive for fullscreen and download options.</p>
 
             <div class="embed embed-video">
-              <iframe src="https://drive.google.com/file/d/14M7Jg69W6CRaBRXhctkHfFDxL8c3vZ_b/preview" title="Day 1 recording" allow="autoplay" allowfullscreen loading="lazy"></iframe>
+              <iframe src="{{VIDEO_EMBED}}" title="Day {{DAY}} recording" allow="autoplay" allowfullscreen loading="lazy"></iframe>
             </div>
 
             <div class="sr-actions">
-              <a class="btn btn-primary" href="https://drive.google.com/file/d/14M7Jg69W6CRaBRXhctkHfFDxL8c3vZ_b/view?usp=sharing" target="_blank" rel="noopener">Open the video in Google Drive <span class="arrow">↗</span></a>
+              <a class="btn btn-primary" href="{{VIDEO_VIEW}}" target="_blank" rel="noopener">Open the video in Google Drive <span class="arrow">↗</span></a>
             </div>
           </article>
 
@@ -61,16 +61,16 @@
           <article class="sr-item">
             <div class="sr-head">
               <span class="badge teal">Slides</span>
-              <h2>Day 1 slides</h2>
+              <h2>Day {{DAY}} slides</h2>
             </div>
             <p style="color:var(--muted); margin-top:-.4rem;">Flip through the deck used in the recording, or open it in Google Slides to present or download.</p>
 
             <div class="embed" style="aspect-ratio: 16 / 9;">
-              <iframe src="https://docs.google.com/presentation/d/1VaHqjhmftYPVIdMzFuahsmmZ0cCVX0jRQDUUTyCuc_0/embed" title="Day 1 slides" allowfullscreen loading="lazy"></iframe>
+              <iframe src="{{SLIDES_EMBED}}" title="Day {{DAY}} slides" allowfullscreen loading="lazy"></iframe>
             </div>
 
             <div class="sr-actions">
-              <a class="btn btn-ghost" href="https://docs.google.com/presentation/d/1VaHqjhmftYPVIdMzFuahsmmZ0cCVX0jRQDUUTyCuc_0/edit?usp=sharing" target="_blank" rel="noopener">Open the slides <span class="arrow">↗</span></a>
+              <a class="btn btn-ghost" href="{{SLIDES_VIEW}}" target="_blank" rel="noopener">Open the slides <span class="arrow">↗</span></a>
             </div>
           </article>
 
