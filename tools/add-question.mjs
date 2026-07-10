@@ -25,6 +25,7 @@ const TPL_PATH = join(ROOT, "tools/templates/question.html");
 const CIPHERS = [
   "Aristocrat", "Patristocrat", "Xenocrypt", "Affine", "Caesar", "Atbash",
   "Vigenere", "Hill", "Porta", "Baconian", "Nihilist", "Checkerboard", "Fractionated Morse",
+  "Homophonic",
 ];
 const ARISTO = new Set(["Aristocrat", "Patristocrat", "Xenocrypt"]);
 

@@ -24,7 +24,7 @@ Answer the prompts:
 
 | Prompt | What to enter |
 | --- | --- |
-| Cipher type | `Aristocrat`, `Patristocrat`, `Xenocrypt`, `Affine`, `Caesar`, `Atbash`, `Vigenere`, `Hill`, `Porta`, `Baconian`, `Nihilist`, `Checkerboard`, `Fractionated Morse` |
+| Cipher type | `Aristocrat`, `Patristocrat`, `Xenocrypt`, `Affine`, `Caesar`, `Atbash`, `Vigenere`, `Hill`, `Porta`, `Baconian`, `Nihilist`, `Checkerboard`, `Fractionated Morse`, `Homophonic` |
 | Aristocrat type | `K1`, `K2`, or `Normal` (only asked for Aristocrat-family ciphers) |
 | Question prompt | The text shown above the puzzle grid |
 | Cipher text | The encoded text, exactly as students should see it |

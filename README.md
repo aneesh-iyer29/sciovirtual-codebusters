@@ -80,7 +80,7 @@ node tools/add-question.mjs --json my-question.json
 
 **Supported `cipherType` values:** `Aristocrat`, `Patristocrat`, `Xenocrypt`, `Affine`,
 `Caesar`, `Atbash`, `Vigenere`, `Hill`, `Porta`, `Baconian`, `Nihilist`,
-`Checkerboard`, `Fractionated Morse`.
+`Checkerboard`, `Fractionated Morse`, `Homophonic`.
 
 ---
 

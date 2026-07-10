@@ -23,6 +23,7 @@
      Baconian                              → 5-symbol groups
      Nihilist, Checkerboard                → two-digit units + Polybius square
      Fractionated Morse                    → morse triplets + replacement table
+     Homophonic                            → homophone table (25 cols) + two-digit ciphertext
    ========================================================================= */
 (function () {
   "use strict";
@@ -96,7 +97,9 @@
             while (n < list.length && (list[n].readOnly || list[n].classList.contains("is-space"))) n++;
             if (n < list.length) list[n].focus();
           } else {
-            input.value = (input.value + e.data.toUpperCase()).slice(0, input.maxLength);
+            // numeric cells (homophone table) only accept digits; others uppercase
+            const add = input.classList.contains("is-num") ? e.data.replace(/\D/g, "") : e.data.toUpperCase();
+            input.value = (input.value + add).slice(0, input.maxLength);
           }
           input.dispatchEvent(new Event("cb:input"));
         }
@@ -237,6 +240,74 @@
     root.appendChild(aux);
   }
 
+  /* ---------- homophonic (homophone table + two-digit ciphertext) ---------- */
+  // 25 columns: I and J share one (like the Aristocrat convention).
+  const HOMO_COLS = ["A", "B", "C", "D", "E", "F", "G", "H", "I/J", "K", "L", "M",
+    "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+
+  function buildHomophonic(root, data, ctx) {
+    /* 1. homophone worksheet: darkened A–Z header + 4 editable number rows */
+    const aux = el("div", "cb-aux cb-homo-aux");
+    aux.innerHTML = `<div class="cb-aux-label">Homophone table: list the numbers that stand for each letter</div>`;
+    const wrap = el("div", "cb-homo-wrap");
+    const table = el("table", "cb-homo", { "aria-label": "homophone worksheet, 25 letters by 4 rows" });
+
+    const head = el("tr");
+    HOMO_COLS.forEach((l) => { const th = el("th", null, { scope: "col" }); th.textContent = l; head.appendChild(th); });
+    table.appendChild(head);
+
+    for (let r = 0; r < 4; r++) {
+      const tr = el("tr");
+      const rowInputs = [];
+      HOMO_COLS.forEach((l) => {
+        const td = el("td");
+        const inp = cell("is-num is-homo");
+        inp.maxLength = 3;   // homophones are 1-indexed and run up to 100
+        inp.setAttribute("inputmode", "numeric");
+        inp.setAttribute("aria-label", "homophone " + (r + 1) + " for " + l);
+        ctx.gridInputs.push(inp);
+        rowInputs.push(inp);
+        td.appendChild(inp);
+        tr.appendChild(td);
+      });
+      // Enter advances to the next cell in THIS row, wrapping back to the first
+      // at the end. Scoped to these cells only, so nothing else on the site changes.
+      rowInputs.forEach((inp, i) => {
+        inp.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            rowInputs[(i + 1) % rowInputs.length].focus();
+          }
+        });
+      });
+      table.appendChild(tr);
+    }
+    wrap.appendChild(table);
+    aux.appendChild(wrap);
+    root.appendChild(aux);
+
+    /* 2. ciphertext: two-digit unit on top, editable answer letter below (no key row) */
+    const block = el("div", "cb-aux");
+    block.innerHTML = `<div class="cb-aux-label">Ciphertext: write the plaintext letter under each number</div>`;
+    const grid = el("div", "cb-grid");
+    const words = data.cipherText.trim().split(/\s+/);
+    words.forEach((word) => {
+      const wordDiv = el("div", "cb-word");
+      const units = word.match(/.{1,2}/g) || [];
+      units.forEach((unit) => {
+        const g = el("div", "cb-stack");
+        const c = cipherCell(unit, "cipher number " + unit); c.classList.add("is-num");
+        g.appendChild(c);
+        const a = answerCell(); a.setAttribute("aria-label", "answer for cipher number " + unit);
+        ctx.answerInputs.push(a); ctx.parts.push(a); g.appendChild(a);
+        wordDiv.appendChild(g);
+      });
+      grid.appendChild(wordDiv);
+    });
+    block.appendChild(grid);
+    root.appendChild(block);
+  }
+
   /* ---------- frequency table (aristocrat family) ---------- */
   function buildFreqTable(root, data, ctx) {
     const letters = data.cipherType === "Xenocrypt"
@@ -319,6 +390,7 @@
     const type = data.cipherType;
     if (type === "Fractionated Morse") buildMorse(board, data, ctx);
     else if (type === "Baconian") buildBaconian(board, data, ctx);
+    else if (type === "Homophonic") buildHomophonic(board, data, ctx);
     else if (TWO_DIGIT_TYPES.has(type)) buildPolybius(board, data, ctx);
     else buildGrid(board, data, ctx);
 

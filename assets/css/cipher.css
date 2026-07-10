@@ -111,6 +111,26 @@
 .cb-freq-key .cb-cell { width: 100%; height: 26px; border: none; background: transparent; font-size: .85rem; }
 .cb-freq-key .cb-cell:focus { box-shadow: inset 0 0 0 2px var(--gold); }
 
+/* homophonic — worksheet table + two-digit ciphertext */
+.cb-homo-aux { margin-top: 0; }                 /* table sits at the top of the board */
+.cb-homo-wrap { overflow-x: auto; }
+.cb-homo { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 880px; }
+.cb-homo th, .cb-homo td {
+  border: 1px solid var(--line); width: 4%; text-align: center; padding: 0;
+}
+.cb-homo th {
+  background: var(--night); color: #eef0ff; font-weight: 700;
+  font-family: var(--font-mono); font-size: .82rem; height: 32px;
+}
+.cb-homo td { background: var(--mist); padding: 2px; }
+.cb-homo td .cb-cell {
+  width: 100%; height: 30px; border: none; background: transparent; border-radius: 6px;
+}
+.cb-homo td .cb-cell:focus { box-shadow: inset 0 0 0 2px var(--indigo); }
+
+/* multi-digit numeric cells (homophone entries + ciphertext numbers) */
+.cb-cell.is-num { font-size: .8rem; letter-spacing: .5px; }
+
 /* actions + result */
 .cb-actions { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: 1.8rem; }
 .cb-result { margin-top: 1rem; font-family: var(--font-display); font-weight: 600; min-height: 1.5em; }

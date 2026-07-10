@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Homophonic (example) · Day 2 · ScioVirtual Codebusters</title>
+  <meta name="description" content="Format preview for the Homophonic cipher solver.">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Lato:wght@400;700&family=Space+Mono:wght@400;700&display=swap">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/cipher.css">
+  <script type="module" src="/assets/js/site.js"></script>
+</head>
+<body>
+  <main id="main">
+    <header class="page-head">
+      <div class="wrap">
+        <p class="crumbs"><a href="/">Home</a> / <a href="/daily-questions/day-2/">Day 2</a> / Homophonic (example)</p>
+        <h1>Homophonic — format preview</h1>
+        <p class="lead">A layout test for the Homophonic cipher. The table and ciphertext use placeholder numbers — this is just to check the format.</p>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="wrap">
+        <div data-cipher id="q"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/assets/js/cipher-engine.js"></script>
+  <script>
+    Codebusters.render("#q", {
+      cipherType: "Homophonic",
+      questionText: "Each plaintext letter is enciphered as one of several two-digit numbers. Use the homophone table to record which numbers stand for each letter, then write the plaintext under the ciphertext.",
+      cipherText: "417208 1099234587 6631255074 880312",
+      correctAnswer: "THE QUICK BROWN FOX",
+      revealKeyword: "NICE"
+    });
+  </script>
+</body>
+</html>
