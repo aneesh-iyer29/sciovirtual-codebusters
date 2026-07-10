@@ -117,6 +117,8 @@ export const NAV = [
       {
         "label": "Day 3",
         "href": "/daily-questions/day-3/",
+        "kicker": "Day 3 · Homophonic",
+        "desc": "A Porta crypt warm-up, then two walkthroughs for the homophonic cipher lesson.",
         "children": [
           {
             "label": "Porta warmup",
@@ -125,8 +127,20 @@ export const NAV = [
             "desc": "Type your answer under each cipher letter, then check it."
           },
           {
-            "label": "homo-crypt walkthrough",
+            "label": "Homo Intro",
+            "href": "/daily-questions/day-3/homo-intro.html",
+            "kicker": "Homophonic",
+            "desc": "Type your answer under each cipher letter, then check it."
+          },
+          {
+            "label": "Homo-crypt walkthrough",
             "href": "/daily-questions/day-3/homo-crypt-walkthrough.html",
+            "kicker": "Homophonic",
+            "desc": "Type your answer under each cipher letter, then check it."
+          },
+          {
+            "label": "Homo-decode walkthrough",
+            "href": "/daily-questions/day-3/homo-decode-walkthrough.html",
             "kicker": "Homophonic",
             "desc": "Type your answer under each cipher letter, then check it."
           }

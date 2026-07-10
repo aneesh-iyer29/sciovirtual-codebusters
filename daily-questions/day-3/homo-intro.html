@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Homo Intro · ScioVirtual Codebusters</title>
+  <meta name="description" content="Type your answer under each cipher letter, then check it.">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Lato:wght@400;700&family=Space+Mono:wght@400;700&display=swap">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/cipher.css">
+  <script type="module" src="/assets/js/site.js"></script>
+</head>
+<body>
+  <main id="main">
+    <header class="page-head">
+      <div class="wrap">
+        <p class="crumbs"><a href="/">Home</a> / <a href="/daily-questions/day-3/">Day 3</a> / Homo Intro</p>
+        <h1>Homo Intro</h1>
+        <p class="lead">Type your answer under each cipher letter, then check it.</p>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="wrap">
+        <div data-cipher id="q"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/assets/js/cipher-engine.js"></script>
+  <script>
+    Codebusters.render("#q", {
+      "cipherType": "Homophonic",
+      "questionText": "Homophonic decode given the full keyword: ALTO! Decrypt the quote using the table.",
+      "cipherText": "7766709703 5879797134 3375816613 50",
+      "correctAnswer": "PINK CARROTS STINK",
+      "revealKeyword": "GREECE"
+    });
+  </script>
+</body>
+</html>

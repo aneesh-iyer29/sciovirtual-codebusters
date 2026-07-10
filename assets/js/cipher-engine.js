@@ -262,7 +262,7 @@
       HOMO_COLS.forEach((l) => {
         const td = el("td");
         const inp = cell("is-num is-homo");
-        inp.maxLength = 3;   // homophones are 1-indexed and run up to 100
+        inp.maxLength = 2;   // two digits per cell; the homophone 100 is written as "00"
         inp.setAttribute("inputmode", "numeric");
         inp.setAttribute("aria-label", "homophone " + (r + 1) + " for " + l);
         ctx.gridInputs.push(inp);
