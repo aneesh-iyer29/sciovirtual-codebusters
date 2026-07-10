@@ -31,13 +31,18 @@ Answer the prompts:
 | Correct answer | The decoded plaintext (checking ignores punctuation and case) |
 | Reveal keyword | A fun keyword shown when the student solves it |
 | Day number | `1`, `2`, ... (a new day auto-creates the day hub page) |
+| Day card kicker / description | **Only asked for a brand-new day.** Sets the day's card on the Daily Questions overview (e.g. kicker `Day 4 · Hill`, description "A Hill warm-up and two practice ciphers"). Defaults the kicker to `Day N · <CipherType>` so the card is never blank. |
 | Title / slug / intro | How the page is named and linked |
 
 The script then:
 
 1. creates `daily-questions/day-<n>/<slug>.html`,
-2. creates `daily-questions/day-<n>/index.html` if this is the first question of that day, and
+2. creates `daily-questions/day-<n>/index.html` if this is the first question of that day (and fills that day's overview card), and
 3. adds the link under **Daily Questions > Day N** in `assets/js/nav.js`.
+
+> The day-card prompts appear **only when the day is new**, so adding more questions to an
+> existing day never re-asks or overwrites its card. To change an existing day's card, edit
+> its `kicker` / `desc` in `assets/js/nav.js` by hand.
 
 Preview at the URL it prints, then commit and push. Netlify redeploys automatically.
 
@@ -60,9 +65,14 @@ node tools/add-question.mjs --json my-question.json
   "day": "2",
   "title": "Aristocrat #1",
   "slug": "aristocrat-1",
-  "lead": "Warm up with an easy one."
+  "lead": "Warm up with an easy one.",
+  "dayKicker": "Day 2 · Aristocrats",
+  "dayDesc": "Two Aristocrats to warm up on."
 }
 ```
+
+`dayKicker` / `dayDesc` are optional and only used when the day is new; if you omit
+`dayKicker` on a new day, it defaults to `Day N · <CipherType>`.
 
 ### Don't have cipher text yet?
 

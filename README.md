@@ -47,12 +47,13 @@ It asks you, one line at a time, for:
 | Correct answer | the decoded plaintext |
 | Reveal keyword | shown when the student solves it |
 | Day number | `1`, `2`, ... |
+| Day card kicker / description | only for a new day — the card shown on the Daily Questions overview |
 | Title / slug / intro | naming for the page + nav link |
 
 It then:
 
 1. **Creates the page** at `daily-questions/day-<n>/<slug>.html`.
-2. **Creates the day hub** (`day-<n>/index.html`) the first time you use a new day.
+2. **Creates the day hub** (`day-<n>/index.html`) the first time you use a new day, and fills that day's overview card (kicker + description).
 3. **Links it into the nav** under *Daily Questions > Day N*.
 
 Preview it at the URL it prints, then `git add . && git commit && git push`.

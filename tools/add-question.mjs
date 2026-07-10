@@ -15,7 +15,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
-import { readNav, writeNav, insertUnderPath, slugify, titleCase } from "./navlib.mjs";
+import { readNav, writeNav, insertUnderPath, ensureGroup, slugify, titleCase } from "./navlib.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
@@ -31,6 +31,8 @@ const ARISTO = new Set(["Aristocrat", "Patristocrat", "Xenocrypt"]);
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const fill = (tpl, map) => tpl.replace(/\{\{(\w+)\}\}/g, (_, k) => (k in map ? map[k] : ""));
+const daySafeOf = (d) => String(d).replace(/[^A-Za-z0-9]/g, "") || "1"; // no path traversal / injection
+const dayHubExists = (daySafe) => existsSync(join(ROOT, `daily-questions/day-${daySafe}`, "index.html"));
 
 function dayIndexHTML(label) {
   return `<!doctype html>
@@ -90,12 +92,24 @@ async function collectInteractive(rl) {
   data.revealKeyword = await ask("  Reveal keyword (shown when solved)");
 
   const dayNum = await ask("  Which day number does this belong to?", "1");
+
+  // Day-level overview card (kicker + description on the Daily Questions page).
+  // Only asked when this day is brand new, so we never re-prompt or clobber a set one.
+  const daySafe = daySafeOf(dayNum);
+  let dayKicker = "", dayDesc = "";
+  if (!dayHubExists(daySafe)) {
+    console.log(`\n  Day ${daySafe} is new — set its card on the Daily Questions overview:`);
+    dayKicker = await ask(`    Day card kicker`, `Day ${daySafe} · ${cipherType}`);
+    dayDesc = await ask(`    Day card description (optional)`, "");
+    console.log("");
+  }
+
   const title = await ask("  Short title for this question", `${cipherType} question`);
   const slug = slugify(await ask("  URL slug", slugify(title)));
   const lead = await ask("  One-line intro (optional)", "Type your answer under each cipher letter, then check it.");
   const kicker = await ask("  Nav kicker label (optional)", cipherType);
 
-  return { data, dayNum, title, slug, lead, kicker };
+  return { data, dayNum, title, slug, lead, kicker, dayKicker, dayDesc };
 }
 
 async function main() {
@@ -106,21 +120,22 @@ async function main() {
   if (jsonIdx >= 0) {
     const payload = JSON.parse(await readFile(args[jsonIdx + 1], "utf8"));
     const { cipherType, aristoType, questionText, cipherText, correctAnswer, revealKeyword,
-            day = "1", title, slug, lead, kicker } = payload;
+            day = "1", title, slug, lead, kicker, dayKicker, dayDesc } = payload;
     const data = { cipherType };
     if (ARISTO.has(cipherType) && aristoType) data.aristoType = aristoType;
     Object.assign(data, { questionText, cipherText, correctAnswer, revealKeyword });
     const t = title || `${cipherType} question`;
     fields = { data, dayNum: String(day), title: t, slug: slugify(slug || t),
-               lead: lead || "Type your answer under each cipher letter, then check it.", kicker: kicker || cipherType };
+               lead: lead || "Type your answer under each cipher letter, then check it.", kicker: kicker || cipherType,
+               dayKicker: dayKicker || "", dayDesc: dayDesc || "" };
   } else {
     const rl = createInterface({ input, output });
     try { fields = await collectInteractive(rl); }
     finally { rl.close(); }
   }
 
-  const { data, dayNum, title, slug, lead, kicker } = fields;
-  const daySafe = String(dayNum).replace(/[^A-Za-z0-9]/g, "") || "1"; // no path traversal / injection
+  const { data, dayNum, title, slug, lead, kicker, dayKicker, dayDesc } = fields;
+  const daySafe = daySafeOf(dayNum);
   const dayLabel = `Day ${daySafe}`;
   const dayDir = `daily-questions/day-${daySafe}`;
   const dayHref = `/${dayDir}/`;
@@ -151,6 +166,20 @@ async function main() {
 
   // wire into navigation
   const state = await readNav(NAV_PATH);
+  const dayNode = ensureGroup(state.NAV, ["Daily Questions", dayLabel], ["/daily-questions/", dayHref]);
+
+  // Day-level overview card. On a new day, guarantee at least a kicker so the card
+  // is never blank; only write fields we actually have, and don't clobber an existing
+  // card when nothing new was supplied. Keys ordered label, href, kicker, desc, children.
+  const newDayKicker = dayKicker || (newDay ? `${dayLabel} · ${data.cipherType}` : "");
+  if (newDayKicker || dayDesc) {
+    const children = dayNode.children;
+    delete dayNode.children;
+    if (newDayKicker) dayNode.kicker = newDayKicker;
+    if (dayDesc) dayNode.desc = dayDesc;
+    dayNode.children = children;
+  }
+
   insertUnderPath(
     state.NAV,
     ["Daily Questions", dayLabel],
@@ -161,6 +190,7 @@ async function main() {
 
   console.log(`\n  ✓ Created  ${relPath}`);
   if (newDay) console.log(`  ✓ Created  ${dayDir}/index.html  (new day hub)`);
+  if (newDayKicker || dayDesc) console.log(`  ✓ Card     ${dayLabel} · overview: "${newDayKicker || dayNode.kicker || ""}"`);
   console.log(`  ✓ Linked   Daily Questions › ${dayLabel} › ${title}`);
   console.log(`\n  Preview:   http://localhost:8000${href}`);
   console.log(`  (run  npm start  to serve locally, then commit + push)\n`);
