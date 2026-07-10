@@ -113,6 +113,24 @@ export const NAV = [
             "desc": "Type your answer under each cipher letter, then check it."
           }
         ]
+      },
+      {
+        "label": "Day 3",
+        "href": "/daily-questions/day-3/",
+        "children": [
+          {
+            "label": "Porta warmup",
+            "href": "/daily-questions/day-3/porta-warmup.html",
+            "kicker": "Porta",
+            "desc": "Type your answer under each cipher letter, then check it."
+          },
+          {
+            "label": "homo-crypt walkthrough",
+            "href": "/daily-questions/day-3/homo-crypt-walkthrough.html",
+            "kicker": "Homophonic",
+            "desc": "Type your answer under each cipher letter, then check it."
+          }
+        ]
       }
     ]
   },
