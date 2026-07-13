@@ -149,6 +149,38 @@ export const NAV = [
             "desc": "Type your answer under each cipher letter, then check it."
           }
         ]
+      },
+      {
+        "label": "Day 4",
+        "href": "/daily-questions/day-4/",
+        "kicker": "Day 4 · Bacon & Cryptarithms",
+        "desc": "Homophonic warmup, bacon walkthroughs. Cryptarithms not yet supported on the website :(",
+        "children": [
+          {
+            "label": "(INTRO) K1 Aristocrat Warmup",
+            "href": "/daily-questions/day-4/intro-k1-aristocrat-warmup.html",
+            "kicker": "K1 Aristocrat",
+            "desc": "Type your answer under each cipher letter, then check it."
+          },
+          {
+            "label": "(INTRO) Homophonic Decode w/ Key",
+            "href": "/daily-questions/day-4/intro-homophonic-decode-w-key.html",
+            "kicker": "Homophonic",
+            "desc": "Type your answer under each cipher letter, then check it."
+          },
+          {
+            "label": "(INTRO) crypt Homophonic",
+            "href": "/daily-questions/day-4/intro-crypt-homophonic.html",
+            "kicker": "Homophonic",
+            "desc": "Type your answer under each cipher letter, then check it."
+          },
+          {
+            "label": "(INTRO) Decode Homophonic",
+            "href": "/daily-questions/day-4/intro-decode-homophonic.html",
+            "kicker": "Homophonic",
+            "desc": "Type your answer under each cipher letter, then check it."
+          }
+        ]
       }
     ]
   },
