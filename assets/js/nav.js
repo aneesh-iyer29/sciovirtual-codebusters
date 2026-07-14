@@ -53,6 +53,10 @@ export const NAV = [
       {
         "label": "Day 3",
         "href": "/slides-recordings/day-3.html"
+      },
+      {
+        "label": "Day 4",
+        "href": "/slides-recordings/day-4.html"
       }
     ]
   },
