@@ -185,6 +185,20 @@ export const NAV = [
             "desc": "Type your answer under each cipher letter, then check it."
           }
         ]
+      },
+      {
+        "label": "Day 5",
+        "href": "/daily-questions/day-5/",
+        "kicker": "Day 5 · Challenge",
+        "desc": "No new content today! Come solve our midpoint course challenge!",
+        "children": [
+          {
+            "label": "Midpoint Course Challenge!",
+            "href": "/daily-questions/day-5/midpoint-course-challenge/",
+            "kicker": "Midpoint Challenge",
+            "desc": "Codebusters Relay! Read the syllabus and come to class for instructions. This can only be done in class, and submissions will close right after!"
+          }
+        ]
       }
     ]
   },
