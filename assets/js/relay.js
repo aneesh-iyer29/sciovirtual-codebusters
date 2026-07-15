@@ -155,6 +155,8 @@
     const qRoot = document.querySelector("[data-relay-questions]");
     const progress = document.querySelector("[data-relay-progress]");
     const gate = document.querySelector("[data-relay-gate]");
+    const submitSection = document.querySelector(".relay-submit");
+    const advanceSection = document.querySelector(".relay-advance");
     if (!qRoot || !window.Codebusters) {
       console.warn("relay.js: a round needs cipher-engine.js and a [data-relay-questions] container");
       return;
@@ -181,24 +183,36 @@
       hosts.push(mount);
     });
 
-    // gate stays locked until enough are solved
-    if (gate) {
-      gate.innerHTML = '<p class="relay-locked">🔒 Solve at least ' + needed + " of " + total +
-        " ciphers to unlock. Your Continue button appears here once you enter the code from your form.</p>";
-    }
+    // Everything past the ciphers — the submission form AND the code box — stays
+    // hidden until enough are solved, so a team can't submit or advance early
+    // (and can't get stuck trying to submit with fewer than `needed` solves).
+    [submitSection, advanceSection].forEach((s) => { if (s) s.hidden = true; });
+    const lock = el("div", "relay-final-lock");
+    lock.innerHTML =
+      '<span class="relay-lock-ic" aria-hidden="true">🔒</span>' +
+      "<div><b>Submission unlocks at " + needed + " of " + total + ".</b> " +
+      "Solve at least " + needed + " ciphers to open the form and the code box — " +
+      'solved so far: <span data-lock-count>0</span> / ' + total + ".</div>";
+    if (submitSection && submitSection.parentNode) submitSection.parentNode.insertBefore(lock, submitSection);
 
     let unlocked = false;
     const update = () => {
       let n = 0;
       hosts.forEach((h) => { if (h.classList.contains("cb-solved")) n++; });
       if (progress) renderProgress(progress, n, total, needed);
-      if (n >= needed && !unlocked && gate && cfg.gate && cfg.gate.enc) {
-        unlocked = true; // latch open — never yank the gate back once earned
-        mountGate(gate, cfg.gate.enc, {
-          label: "Round code",
-          hint: "code from your form's confirmation screen",
-          go: "Continue to the next round →",
-        });
+      const c = lock.querySelector("[data-lock-count]");
+      if (c) c.textContent = n;
+      if (n >= needed && !unlocked) {
+        unlocked = true; // latch open — never yank access back once earned
+        lock.hidden = true;
+        [submitSection, advanceSection].forEach((s) => { if (s) s.hidden = false; });
+        if (gate && cfg.gate && cfg.gate.enc) {
+          mountGate(gate, cfg.gate.enc, {
+            label: "Round code",
+            hint: "code from your form's confirmation screen",
+            go: "Continue to the next round →",
+          });
+        }
       }
     };
 

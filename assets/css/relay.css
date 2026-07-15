@@ -101,6 +101,20 @@
   border-radius: var(--radius); padding: 1.1rem 1.3rem;
 }
 
+/* form + code box stay hidden behind this until enough ciphers are solved */
+.relay-final-lock {
+  display: flex; gap: .9rem; align-items: flex-start;
+  margin-top: 2.6rem; padding: 1.3rem 1.5rem;
+  border: 1px dashed var(--line-strong); border-radius: var(--radius);
+  background: var(--lavender); color: var(--ink-2);
+}
+.relay-final-lock .relay-lock-ic { font-size: 1.4rem; line-height: 1.4; flex: none; }
+.relay-final-lock b { font-family: var(--font-display); color: var(--ink); }
+.relay-final-lock [data-lock-count] { font-family: var(--font-display); font-weight: 700; color: var(--indigo); }
+
+/* make sure a hidden section is always actually hidden, whatever else is set */
+.relay-round [hidden] { display: none !important; }
+
 /* ---- finish page ---- */
 .relay-finish { max-width: var(--wrap-narrow); text-align: center; }
 .relay-finish .relay-trophy { font-size: 3.4rem; line-height: 1; margin: 0 0 .6rem; }
