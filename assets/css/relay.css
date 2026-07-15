@@ -71,6 +71,9 @@
 /* ---- round page ---- */
 .relay-round { max-width: var(--wrap-narrow); }
 
+/* "view & print the worksheet" button, in the round's header band */
+.relay-pdf-actions { margin: 1.2rem 0 0; }
+
 /* live progress — sticks under the header so it's always visible while solving */
 .relay-progress {
   position: sticky; top: 74px; z-index: 5;
