@@ -8,6 +8,7 @@ navigation for you. Run them from the **repo root** with Node 18+.
 npm start             # serve the site at http://localhost:8000 (needed to preview)
 npm run add:question  # new interactive cipher question
 npm run add:relay     # scaffold a relay race (home + finish + nav card); rounds added separately
+npm run add:relay-round # add a round (ciphers + submission form + code gate), spliced at the tail
 npm run add:page      # new page from any embed (Form, Doc, Slides, video)
 npm run add:homework  # new homework assignment (PDF + submission form) on the Homework page
 npm run add:recording # new "Day N" slides & recording page from two Google links
@@ -290,6 +291,63 @@ Optional fields: `slug`, `base` (folder), `introFile`/`introHtml`, `finishTitle`
 
 Preview at the URL it prints, then commit and push.
 
+### Add a round
+
+```bash
+npm run add:relay-round
+```
+
+Appends a round **at the tail** of the chain: it points the current last page (the home page,
+or the previous round) at the new round, and points the new round at the finish page — so the
+chain grows `home → r1 → r2 → … → finish`. It auto-picks the relay if there's only one; with
+several, it asks (or set `"relay": "<base>"` in JSON). Each round page is titled **Round N**,
+counting from 1.
+
+Answer the prompts:
+
+| Prompt | What to enter |
+| --- | --- |
+| How many ciphers this round | Any number (default 4) — not fixed at 4 |
+| How many must be solved to advance | Default is all-but-one (e.g. 3 of 4); the code box stays locked until this many are solved |
+| Each cipher | Same questions as `add:question` — type, Aristocrat sub-type, prompt, cipher text, answer, and the **password** revealed on solve — repeated until the round is full |
+| This round's Google Form URL | Where teams submit that round's passwords; shown **after** the ciphers |
+| Embed the form in the page? | `y` = in-page embed **plus** an "Open in a new tab ↗" button; `n` = just the new-tab button. Either way students can submit in their own tab |
+| This round's code | The code you set on **this** round's form confirmation message; encrypts this round → next |
+| Previous page's code | The code on the **current last** page's form (the team code for round 1, or the previous round's code) — needed to re-point it at this round |
+
+The tool **verifies the previous code before writing anything** — it must currently decrypt the
+tail's gate to the finish page (the invariant that always holds before an insert), so a typo
+fails fast instead of breaking the chain. The ciphers' answers are stored base64-obfuscated in
+the page (not plain text), and the "next" link is encrypted under this round's code, same as the
+home page.
+
+On the round's page the flow is: solve the ciphers (each reveals its password) → the progress bar
+tracks **Solved X / N** → once the threshold is met the submission form and the code box unlock →
+enter the code from the form's confirmation screen to reveal the **Continue** button.
+
+### Batch mode (no prompts)
+
+```bash
+node tools/add-relay-round.mjs --json my-round.json
+```
+
+```json
+{
+  "relay": "/daily-questions/day-5/cipher-relay",
+  "needed": 3,
+  "formUrl": "https://docs.google.com/forms/d/e/XXXX/viewform",
+  "formEmbed": true,
+  "code": "NEBULA-7",
+  "prevCode": "STARSHIP7",
+  "questions": [
+    { "cipherType": "Aristocrat", "aristoType": "K1", "questionText": "…", "cipherText": "…", "correctAnswer": "…", "revealKeyword": "PASSWORD1" }
+  ]
+}
+```
+
+`relay` is only needed when more than one relay exists. The round count comes from
+`questions.length`; `needed` defaults to all-but-one; `formEmbed` defaults to `true`.
+
 ---
 
 ## 6. Add links to Optional Resources
@@ -325,9 +383,10 @@ assets/img/instructors/   Instructor photos (homepage + contact page)
 assets/img/scio-logo.svg  White ScioVirtual logo (header + footer)
 assets/css/base.css       Design tokens and site-wide styles
 assets/css/cipher.css     Solver widget styles
-assets/css/relay.css      Relay race styles (home, code gate, finish)
+assets/css/relay.css      Relay race styles (home, rounds, code gate, finish)
 assets/js/cipher-engine.js  The interactive solver engine
-assets/js/relay.js        Relay runtime (reads each page's relay-config, drives the code gate)
+assets/js/relay.js        Relay runtime (reads each page's relay-config; renders rounds, drives the gate)
 tools/relaycrypto.mjs     Code→link obfuscation (mirrored, byte-for-byte, in relay.js)
+tools/add-relay.mjs · add-relay-round.mjs  Relay scaffold + round generators
 tools/templates/          The HTML skeletons the generators fill in
 ```

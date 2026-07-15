@@ -9,6 +9,7 @@
     "serve": "npx --yes serve -l 8000 .",
     "add:question": "node tools/add-question.mjs",
     "add:relay": "node tools/add-relay.mjs",
+    "add:relay-round": "node tools/add-relay-round.mjs",
     "add:page": "node tools/add-page.mjs",
     "add:homework": "node tools/add-homework.mjs",
     "add:recording": "node tools/add-recording.mjs"

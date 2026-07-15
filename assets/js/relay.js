@@ -127,6 +127,88 @@
     });
   }
 
+  /* ---------- round ---------- */
+  // Each question is stored base64(UTF-8 JSON) so the answers aren't sitting in
+  // plain text in the page source. Decode to the object the engine expects.
+  function unpackQuestion(b64) {
+    const bin = atob(String(b64));
+    const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+    return JSON.parse(new TextDecoder().decode(bytes));
+  }
+
+  function renderProgress(container, n, total, needed) {
+    const pct = total ? Math.min(100, Math.round((n / total) * 100)) : 0;
+    const ready = n >= needed;
+    container.className = "relay-progress" + (ready ? " is-ready" : "");
+    const note = ready
+      ? "Enough to advance — submit your passwords, then enter your code below."
+      : "Solve at least " + needed + " of " + total + " to unlock the next round.";
+    container.innerHTML =
+      '<div class="relay-progress-head">' +
+        '<span class="relay-progress-count">Solved ' + n + " / " + total + "</span>" +
+        '<span class="relay-progress-note">' + note + "</span>" +
+      "</div>" +
+      '<div class="relay-progress-bar"><span style="width:' + pct + '%"></span></div>';
+  }
+
+  function initRound(cfg) {
+    const qRoot = document.querySelector("[data-relay-questions]");
+    const progress = document.querySelector("[data-relay-progress]");
+    const gate = document.querySelector("[data-relay-gate]");
+    if (!qRoot || !window.Codebusters) {
+      console.warn("relay.js: a round needs cipher-engine.js and a [data-relay-questions] container");
+      return;
+    }
+
+    let questions = [];
+    try { questions = (cfg.questions || []).map(unpackQuestion); }
+    catch (e) { console.warn("relay.js: could not read round questions", e); return; }
+
+    const total = questions.length;
+    const needed = Math.max(1, Math.min(cfg.needed || Math.max(1, total - 1), total));
+
+    // render every cipher with the existing solver
+    const hosts = [];
+    questions.forEach((q, i) => {
+      const block = el("div", "relay-q");
+      const eb = el("p", "eyebrow");
+      eb.textContent = "Cipher " + String(i + 1).padStart(2, "0") + (q.cipherType ? " · " + q.cipherType : "");
+      const mount = el("div");
+      mount.setAttribute("data-cipher", "");
+      block.append(eb, mount);
+      qRoot.appendChild(block);
+      window.Codebusters.render(mount, q);
+      hosts.push(mount);
+    });
+
+    // gate stays locked until enough are solved
+    if (gate) {
+      gate.innerHTML = '<p class="relay-locked">🔒 Solve at least ' + needed + " of " + total +
+        " ciphers to unlock. Your Continue button appears here once you enter the code from your form.</p>";
+    }
+
+    let unlocked = false;
+    const update = () => {
+      let n = 0;
+      hosts.forEach((h) => { if (h.classList.contains("cb-solved")) n++; });
+      if (progress) renderProgress(progress, n, total, needed);
+      if (n >= needed && !unlocked && gate && cfg.gate && cfg.gate.enc) {
+        unlocked = true; // latch open — never yank the gate back once earned
+        mountGate(gate, cfg.gate.enc, {
+          label: "Round code",
+          hint: "code from your form's confirmation screen",
+          go: "Continue to the next round →",
+        });
+      }
+    };
+
+    // the engine toggles a `cb-solved` class on each solved cipher's host —
+    // watch it directly, so the engine needs no changes.
+    const mo = new MutationObserver(update);
+    hosts.forEach((h) => mo.observe(h, { attributes: true, attributeFilter: ["class"] }));
+    update();
+  }
+
   /* ---------- boot ---------- */
   function boot() {
     const node = document.getElementById("relay-config");
@@ -136,8 +218,8 @@
     if (!cfg || !cfg.role) return;
 
     if (cfg.role === "home") initHome(cfg);
+    else if (cfg.role === "round") initRound(cfg);
     else if (cfg.role === "finish") { /* terminal page: nothing to wire */ }
-    // "round" is wired up by tools/add-relay-round.mjs (Tool 2), which extends this file.
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);

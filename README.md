@@ -95,8 +95,17 @@ Sets up a **relay**: a chain of gated rounds where a team registers, enters a co
 reach the first round, solves enough ciphers to unlock the next, and so on to a finish
 page. This command builds the relay's **home** and **finish** pages, a committed
 `relay.config.json` (structure only — no codes), and a **nav card under Daily Questions ›
-Day N**. It starts as `home → finish`; you then append rounds with `add:relay-round`, which
-splice in at the tail (`home → r1 → r2 → … → finish`).
+Day N**. It starts as `home → finish`.
+
+```bash
+npm run add:relay-round
+```
+
+Appends a **Round N** (titled from 1) at the tail, so the chain grows
+`home → r1 → r2 → … → finish`. You pick how many ciphers the round has and how many must be
+solved to advance; each cipher is entered just like `add:question`, and reveals a password on
+solve. After the ciphers comes the round's Google Form (with an "open in a new tab" option and
+an optional in-page embed), then a code box that only unlocks once enough ciphers are solved.
 
 Each page ships the next link **encrypted under a code** the team gets from a Google Form's
 confirmation message — entering the right code reveals a Continue button, so nobody can
@@ -184,6 +193,7 @@ tools/
   README.md                    Step-by-step instructor guide for all of this
   add-question.mjs             Generator: new question page + nav link
   add-relay.mjs                Generator: relay scaffold (home + finish + nav card)
+  add-relay-round.mjs          Generator: append a round (ciphers + form + gate) at the tail
   relaycrypto.mjs              Code→link obfuscation (mirrored in assets/js/relay.js)
   add-page.mjs                 Generator: new embed page + nav link
   add-homework.mjs             Generator: homework card (PDF + form) on the Homework page

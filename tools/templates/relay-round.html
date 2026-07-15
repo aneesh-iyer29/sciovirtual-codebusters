@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{TITLE}} · ScioVirtual Codebusters</title>
+  <meta name="description" content="{{DESC}}">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Lato:wght@400;700&family=Space+Mono:wght@400;700&display=swap">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/cipher.css">
+  <link rel="stylesheet" href="/assets/css/relay.css">
+  <script type="module" src="/assets/js/site.js"></script>
+</head>
+<body>
+  <main id="main">
+    <header class="page-head">
+      <div class="wrap">
+        <p class="crumbs">{{CRUMBS}}</p>
+        <h1>{{HEADING}}</h1>
+        <p class="lead">{{LEAD}}</p>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="wrap relay-round">
+        <div class="relay-progress" data-relay-progress></div>
+
+        <div class="relay-questions" data-relay-questions>
+          <noscript>This round needs JavaScript enabled.</noscript>
+        </div>
+
+        <div class="relay-submit">
+          <h2>Submit your passwords</h2>
+          <p>Enter the password from every cipher you solved on the form below. This locks in your answers — you can't edit them after submitting, so submit once you're done. Your confirmation screen shows the <b>code</b> you'll need to move on.</p>
+          <p class="relay-submit-actions">
+            <a class="btn btn-primary" href="{{FORM_URL}}" target="_blank" rel="noopener">Open the form in a new tab ↗</a>
+          </p>
+{{FORM_EMBED}}
+        </div>
+
+        <div class="relay-advance">
+          <h2>Move on to the next round</h2>
+          <div class="relay-gate" data-relay-gate></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script id="relay-config" type="application/json">{{CONFIG_JSON}}</script>
+  <script src="/assets/js/cipher-engine.js"></script>
+  <script src="/assets/js/relay.js"></script>
+</body>
+</html>
