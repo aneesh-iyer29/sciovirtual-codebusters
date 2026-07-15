@@ -111,6 +111,14 @@
 .cb-freq-key .cb-cell { width: 100%; height: 26px; border: none; background: transparent; font-size: .85rem; }
 .cb-freq-key .cb-cell:focus { box-shadow: inset 0 0 0 2px var(--gold); }
 
+/* puzzle image (cryptarithm) shown above the ciphertext */
+.cb-figure { margin: 0 0 1.6rem; display: flex; justify-content: center; }
+.cb-crypt-img {
+  max-width: 100%; max-height: 340px; height: auto; width: auto;
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+  background: var(--paper); box-shadow: var(--shadow-sm); padding: .5rem;
+}
+
 /* homophonic — worksheet table + two-digit ciphertext */
 .cb-homo-aux { margin-top: 0; }                 /* table sits at the top of the board */
 .cb-homo-wrap { overflow-x: auto; }

@@ -24,6 +24,10 @@
      Nihilist, Checkerboard                → two-digit units + Polybius square
      Fractionated Morse                    → morse triplets + replacement table
      Homophonic                            → homophone table (25 cols) + two-digit ciphertext
+     Cryptarithm                           → puzzle image + single-digit ciphertext grid
+
+   Any question may also set `image` (a URL) and `imageAlt`; when present the image
+   is shown above the ciphertext. Cryptarithm relies on this to show its puzzle.
    ========================================================================= */
 (function () {
   "use strict";
@@ -387,10 +391,20 @@
     const board = el("div", "cb-board", { role: "group", "aria-label": (data.cipherType || "Cipher") + " puzzle worksheet" });
     host.appendChild(board);
 
+    // Optional puzzle image (e.g. a cryptarithm), shown above the ciphertext.
+    if (data.image) {
+      const fig = el("figure", "cb-figure");
+      const img = el("img", "cb-crypt-img", { src: data.image, alt: data.imageAlt || "Puzzle to solve" });
+      img.loading = "lazy";
+      fig.appendChild(img);
+      board.appendChild(fig);
+    }
+
     const type = data.cipherType;
     if (type === "Fractionated Morse") buildMorse(board, data, ctx);
     else if (type === "Baconian") buildBaconian(board, data, ctx);
     else if (type === "Homophonic") buildHomophonic(board, data, ctx);
+    else if (type === "Cryptarithm") buildGrid(board, data, ctx);   // single-digit ciphertext under the image
     else if (TWO_DIGIT_TYPES.has(type)) buildPolybius(board, data, ctx);
     else buildGrid(board, data, ctx);
 

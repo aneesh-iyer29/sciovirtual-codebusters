@@ -81,7 +81,10 @@ node tools/add-question.mjs --json my-question.json
 
 **Supported `cipherType` values:** `Aristocrat`, `Patristocrat`, `Xenocrypt`, `Affine`,
 `Caesar`, `Atbash`, `Vigenere`, `Hill`, `Porta`, `Baconian`, `Nihilist`,
-`Checkerboard`, `Fractionated Morse`, `Homophonic`.
+`Checkerboard`, `Fractionated Morse`, `Homophonic`, `Cryptarithm`.
+
+`Cryptarithm` also takes an `image` (path to the puzzle picture, copied into
+`assets/img/cryptarithms/` and shown above the ciphertext) and optional `imageAlt`.
 
 ---
 

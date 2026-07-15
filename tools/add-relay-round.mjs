@@ -22,10 +22,11 @@
    touching anything (it must currently decrypt the tail's gate to the finish
    page — the invariant that always holds before an insert).
    ========================================================================= */
-import { readFile, writeFile, mkdir, readdir } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { readFile, writeFile, mkdir, readdir, copyFile, open } from "node:fs/promises";
+import { existsSync, statSync } from "node:fs";
 import { dirname, join, resolve, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { homedir } from "node:os";
 import { randomBytes } from "node:crypto";
 import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
@@ -38,9 +39,11 @@ const TPL_PATH = join(ROOT, "tools/templates/relay-round.html");
 const CIPHERS = [
   "Aristocrat", "Patristocrat", "Xenocrypt", "Affine", "Caesar", "Atbash",
   "Vigenere", "Hill", "Porta", "Baconian", "Nihilist", "Checkerboard", "Fractionated Morse",
-  "Homophonic",
+  "Homophonic", "Cryptarithm",
 ];
 const ARISTO = new Set(["Aristocrat", "Patristocrat", "Xenocrypt"]);
+const IMAGE_TYPES = new Set(["Cryptarithm"]);
+const CRYPT_IMG_DIR = "assets/img/cryptarithms";
 const DEFAULT_LEAD = "Solve the ciphers, submit your passwords, then enter your code to move on.";
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -57,6 +60,38 @@ function formEmbedSrc(url) {
     return u + (u.includes("?") ? "&" : "?") + "embedded=true";
   }
   return u;
+}
+
+/* --- image-backed ciphers (Cryptarithm): mirrors tools/add-question.mjs --- */
+const expandHome = (p) => (p && p.startsWith("~/") ? join(homedir(), p.slice(2)) : p);
+
+/** Identify an image by its bytes (not its extension). png|jpg|gif|webp|svg|null. */
+async function imageKind(path) {
+  try {
+    const fh = await open(path, "r");
+    const buf = Buffer.alloc(1024);
+    const { bytesRead } = await fh.read(buf, 0, 1024, 0);
+    await fh.close();
+    const b = buf.slice(0, bytesRead);
+    if (b.slice(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return "png";
+    if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return "jpg";
+    if (b.slice(0, 4).toString("latin1") === "GIF8") return "gif";
+    if (b.slice(0, 4).toString("latin1") === "RIFF" && b.slice(8, 12).toString("latin1") === "WEBP") return "webp";
+    if (b.toString("latin1").toLowerCase().includes("<svg")) return "svg";
+    return null;
+  } catch { return null; }
+}
+
+/** Copy a cipher's image into assets/img/cryptarithms/<name>.<ext>; return its site URL. */
+async function copyImage(srcRaw, name) {
+  const src = resolve(expandHome(srcRaw));
+  if (!existsSync(src) || !statSync(src).isFile()) throw new Error(`Image not found: ${src}`);
+  const kind = await imageKind(src);
+  if (!kind) throw new Error(`Not a recognized image (png/jpg/gif/webp/svg): ${src}`);
+  const rel = `${CRYPT_IMG_DIR}/${name}${kind === "jpg" ? ".jpg" : "." + kind}`;
+  await mkdir(join(ROOT, CRYPT_IMG_DIR), { recursive: true });
+  await copyFile(src, join(ROOT, rel));
+  return `/${rel}`;
 }
 
 /** Walk the repo for relay.config.json files (skips node_modules, .git, dotfiles). */
@@ -93,6 +128,14 @@ async function collectCipher(ask, idx, total) {
   data.cipherText = await ask("  Cipher text (exactly as students see it)");
   data.correctAnswer = await ask("  Correct answer (the decoded plaintext)");
   data.revealKeyword = await ask("  Password revealed when it's solved");
+  // Cryptarithm (image-backed): the puzzle picture shown above the ciphertext.
+  // Stored as a raw path here; copied into assets and rewritten to a web path in main().
+  if (IMAGE_TYPES.has(cipherType)) {
+    let img = "";
+    while (!img) img = await ask("  Image path (the cryptarithm picture, copied into assets)");
+    data.image = img;
+    data.imageAlt = await ask("  Image alt text (optional)", "Cryptarithm to solve");
+  }
   return data;
 }
 
@@ -103,6 +146,11 @@ function normalizeQ(q) {
   data.cipherText = q.cipherText || "";
   data.correctAnswer = q.correctAnswer || "";
   data.revealKeyword = q.revealKeyword || "";
+  if (IMAGE_TYPES.has(q.cipherType)) {
+    if (!q.image) throw new Error(`${q.cipherType} question needs an "image" path.`);
+    data.image = q.image;                       // raw path; copied in main()
+    data.imageAlt = q.imageAlt || "Cryptarithm to solve";
+  }
   return data;
 }
 
@@ -226,6 +274,14 @@ async function main() {
   const roundAbs = pageFile(roundHref);
   if (existsSync(roundAbs)) throw new Error(`${relative(ROOT, roundAbs)} already exists — rerun to get a fresh slug.`);
 
+  // Copy any image-backed ciphers' pictures into assets and point them at the web path.
+  let imgCount = 0;
+  for (let i = 0; i < f.questions.length; i++) {
+    const q = f.questions[i];
+    if (IMAGE_TYPES.has(q.cipherType) && !q.image) throw new Error(`Cipher ${i + 1} (${q.cipherType}) needs an image.`);
+    if (q.image) { q.image = await copyImage(q.image, `${slug}-q${i + 1}`); imgCount++; }
+  }
+
   const roundCfg = {
     role: "round",
     num,
@@ -265,6 +321,7 @@ async function main() {
   // ---- report ----
   const chain = ["home", ...config.rounds.map((r) => "r" + r.num), "finish"].join(" → ");
   console.log(`\n  ✓ Created  ${relative(ROOT, roundAbs)}  (Round ${num}: ${f.count} ciphers, need ${f.needed})`);
+  if (imgCount) console.log(`  ✓ Images   copied ${imgCount} into ${CRYPT_IMG_DIR}/`);
   console.log(`  ✓ Linked   ${tailKind} → Round ${num} → finish`);
   console.log(`  ✓ Updated  ${relative(ROOT, chosen.path)}`);
   console.log(`\n  Chain:     ${chain}`);

@@ -26,8 +26,9 @@ Answer the prompts:
 
 | Prompt | What to enter |
 | --- | --- |
-| Cipher type | `Aristocrat`, `Patristocrat`, `Xenocrypt`, `Affine`, `Caesar`, `Atbash`, `Vigenere`, `Hill`, `Porta`, `Baconian`, `Nihilist`, `Checkerboard`, `Fractionated Morse`, `Homophonic` |
+| Cipher type | `Aristocrat`, `Patristocrat`, `Xenocrypt`, `Affine`, `Caesar`, `Atbash`, `Vigenere`, `Hill`, `Porta`, `Baconian`, `Nihilist`, `Checkerboard`, `Fractionated Morse`, `Homophonic`, `Cryptarithm` |
 | Aristocrat type | `K1`, `K2`, or `Normal` (only asked for Aristocrat-family ciphers) |
+| Image path | **Only asked for `Cryptarithm`.** Path to the puzzle image; it's copied into `assets/img/cryptarithms/<slug>.<ext>` (PNG/JPG/GIF/WebP/SVG) and shown above the ciphertext. The ciphertext is short single digits (`385 4210`) that decode to letters. |
 | Question prompt | The text shown above the puzzle grid |
 | Cipher text | The encoded text, exactly as students should see it |
 | Correct answer | The decoded plaintext (checking ignores punctuation and case) |
@@ -75,6 +76,23 @@ node tools/add-question.mjs --json my-question.json
 
 `dayKicker` / `dayDesc` are optional and only used when the day is new; if you omit
 `dayKicker` on a new day, it defaults to `Day N · <CipherType>`.
+
+For a **Cryptarithm**, add `"image"` (a path to the puzzle picture) and optional
+`"imageAlt"`; the image is copied into `assets/img/cryptarithms/` and displayed above
+the ciphertext:
+
+```json
+{
+  "cipherType": "Cryptarithm",
+  "questionText": "Solve the cryptarithm, then decode the numbers.",
+  "cipherText": "385 4210",
+  "correctAnswer": "THE WORD",
+  "revealKeyword": "MATH",
+  "image": "~/Desktop/send-more-money.png",
+  "imageAlt": "SEND + MORE = MONEY",
+  "day": "4", "title": "Cryptarithm #1", "slug": "cryptarithm-1"
+}
+```
 
 ### Don't have cipher text yet?
 
