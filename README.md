@@ -85,6 +85,26 @@ node tools/add-question.mjs --json my-question.json
 
 ---
 
+## Scaffold a relay race
+
+```bash
+npm run add:relay
+```
+
+Sets up a **relay**: a chain of gated rounds where a team registers, enters a code to
+reach the first round, solves enough ciphers to unlock the next, and so on to a finish
+page. This command builds the relay's **home** and **finish** pages, a committed
+`relay.config.json` (structure only — no codes), and a **nav card under Daily Questions ›
+Day N**. It starts as `home → finish`; you then append rounds with `add:relay-round`, which
+splice in at the tail (`home → r1 → r2 → … → finish`).
+
+Each page ships the next link **encrypted under a code** the team gets from a Google Form's
+confirmation message — entering the right code reveals a Continue button, so nobody can
+jump ahead from `view-source`. See [`tools/README.md`](tools/README.md) for the full field
+list, the `--json` batch form, and the form settings to pair with it.
+
+---
+
 ## Add any other page (a Form, Doc, Slides deck, video, or pasted embed)
 
 ```bash
@@ -155,12 +175,16 @@ assets/
   css/cipher.css               Styling for the interactive solvers
   hw/                          Homework PDFs (served at /assets/hw/…)
   img/                         Logo, favicon, instructor photos
+  css/relay.css                Styling for the relay race (home, code gate, finish)
   js/nav.js                    <- single source of truth for navigation
   js/site.js                   Renders the header/nav/footer on every page
   js/cipher-engine.js          The solver engine (all cipher types)
+  js/relay.js                  Relay runtime: reads each page's relay-config, drives the gate
 tools/
   README.md                    Step-by-step instructor guide for all of this
   add-question.mjs             Generator: new question page + nav link
+  add-relay.mjs                Generator: relay scaffold (home + finish + nav card)
+  relaycrypto.mjs              Code→link obfuscation (mirrored in assets/js/relay.js)
   add-page.mjs                 Generator: new embed page + nav link
   add-homework.mjs             Generator: homework card (PDF + form) on the Homework page
   add-recording.mjs            Generator: Day N slides & recording page + nav link

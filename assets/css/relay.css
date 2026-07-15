@@ -1,0 +1,78 @@
+/* =========================================================================
+   relay.css: styling for the Codebusters relay race (home, rounds, finish).
+   Built on the same tokens as base.css so it reads as one site.
+   ========================================================================= */
+
+.relay-home { max-width: var(--wrap-narrow); }
+.relay-intro { max-width: 70ch; }
+.relay-intro h2 { margin-top: 0; }
+
+/* ---- numbered steps (home) ---- */
+.relay-steps { list-style: none; margin: 2.2rem 0 0; padding: 0; display: grid; gap: 1.6rem; }
+.relay-step {
+  display: grid; grid-template-columns: auto 1fr; gap: 1rem;
+  align-items: start;
+}
+.relay-step-n {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2.2rem; height: 2.2rem; flex: none; margin-top: .1rem;
+  border-radius: 50%; background: var(--indigo); color: #fff;
+  font-family: var(--font-display); font-weight: 700; font-size: 1.05rem;
+}
+.relay-step-body { min-width: 0; }
+.relay-step-body h2 { font-size: 1.25rem; margin: .1rem 0 .35rem; }
+.relay-step-body > p { color: var(--muted); margin: 0 0 1rem; }
+
+/* ---- embedded team form ---- */
+.relay-form { border-radius: var(--radius); }
+.relay-form iframe { width: 100%; height: min(80vh, 900px); border: 0; display: block; }
+
+/* ---- the code gate ---- */
+.relay-gate {
+  border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--lavender); box-shadow: var(--shadow-sm);
+  padding: 1.4rem 1.5rem;
+}
+.relay-gate.is-unlocked {
+  background: var(--teal-soft); border-color: var(--teal);
+}
+.relay-gate-form { margin: 0; }
+.relay-gate-label {
+  display: block; font-family: var(--font-display); font-weight: 600;
+  font-size: .82rem; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--indigo); margin-bottom: .6rem;
+}
+.relay-gate-row { display: flex; flex-wrap: wrap; gap: .6rem; }
+.relay-code {
+  flex: 1 1 220px; min-width: 0;
+  font-family: var(--font-mono); font-size: 1.05rem; letter-spacing: .06em;
+  padding: .6rem .9rem; border: 2px solid var(--line-strong); border-radius: var(--radius-sm);
+  background: var(--paper); color: var(--ink);
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.relay-code:focus { outline: none; border-color: var(--indigo); box-shadow: var(--ring); }
+.relay-gate-row .btn { flex: 0 0 auto; }
+.relay-gate-status { margin: .8rem 0 0; font-size: .95rem; color: var(--muted); min-height: 1.2em; }
+.relay-gate-status.is-wrong { color: #b0492f; font-weight: 600; }
+
+/* ---- unlocked state ---- */
+.relay-unlocked { display: flex; flex-wrap: wrap; align-items: center; gap: .7rem 1.1rem; }
+.relay-unlocked-msg {
+  margin: 0; font-family: var(--font-display); font-weight: 700; color: #147a68;
+  display: inline-flex; align-items: center; gap: .5rem;
+}
+.relay-check {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.5rem; height: 1.5rem; border-radius: 50%;
+  background: var(--teal); color: #fff; font-size: .95rem;
+}
+.relay-continue { margin-left: auto; }
+
+/* ---- finish page ---- */
+.relay-finish { max-width: var(--wrap-narrow); text-align: center; }
+.relay-finish .relay-trophy { font-size: 3.4rem; line-height: 1; margin: 0 0 .6rem; }
+.relay-finish .callout { text-align: left; margin-top: 1.6rem; }
+
+@media (max-width: 560px) {
+  .relay-continue { margin-left: 0; }
+}

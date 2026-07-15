@@ -7,6 +7,7 @@ navigation for you. Run them from the **repo root** with Node 18+.
 ```bash
 npm start             # serve the site at http://localhost:8000 (needed to preview)
 npm run add:question  # new interactive cipher question
+npm run add:relay     # scaffold a relay race (home + finish + nav card); rounds added separately
 npm run add:page      # new page from any embed (Form, Doc, Slides, video)
 npm run add:homework  # new homework assignment (PDF + submission form) on the Homework page
 npm run add:recording # new "Day N" slides & recording page from two Google links
@@ -224,7 +225,74 @@ Preview at <http://localhost:8000/slides-recordings/day-N.html>, then commit and
 
 ---
 
-## 5. Add links to Optional Resources
+## 5. Set up a relay race
+
+A relay is a chain of gated rounds: a team registers, enters a code to reach the first
+round, solves enough of that round's ciphers to unlock the next, and so on to a finish
+page. It's built in two steps — **scaffold the relay once** with `add:relay`, then **append
+rounds** with `add:relay-round` (a separate tool).
+
+```bash
+npm run add:relay
+```
+
+This creates the relay's **home page**, its **finish page**, a committed **`relay.config.json`**
+(structure only — never any codes), and a **nav card under Daily Questions › Day N** that opens
+the home page (just like a walkthrough or practice card). It starts as a two-link chain,
+`home → finish`: entering the team code on the home page unlocks the finish page. Adding rounds
+splices them in at the tail, so it grows to `home → r1 → r2 → … → finish`.
+
+Answer the prompts:
+
+| Prompt | What to enter |
+| --- | --- |
+| Relay title | The heading + nav card label, e.g. `Cipher Relay Race` |
+| URL slug / folder | Where the relay lives; defaults to `daily-questions/day-N/<slug>` |
+| Day number | Which day's card grid the relay card joins (`1`, `2`, …; a new day auto-creates its hub) |
+| Card kicker / description | The relay's card on the day overview |
+| Team-registration form URL | The full Google Form `…/viewform` link, embedded as step 1 on the home page |
+| Team code | The code you set in that form's **confirmation message** — students type it to start |
+| Rules/intro, finish title & message | Optional; press enter for sensible defaults, or point at an HTML file |
+| Default ciphers-to-solve per round | The threshold rounds inherit (e.g. `3`); each round can override it |
+
+### How the code gate works
+
+The link to the next page is stored in the page **encrypted under the code**, not merely
+hidden — so it can't be lifted from `view-source` and used to jump ahead. Entering the right
+code decrypts and reveals a **Continue** button; a wrong code reveals nothing. The code lives
+**only** in the Google Form's confirmation message, never in the repo. Codes are **case- and
+space-sensitive** (`Nebula 7` ≠ `nebula7`), so set the form's confirmation text to exactly what
+you type into the tool. On the form, also turn **off** "edit after submit" so answers lock.
+
+> The cipher *answers* still live in each page (the browser has to check them), so this stops
+> URL-phishing and accidental skipping, not a determined `view-source`. That's the intended bar.
+
+### Batch mode (no prompts)
+
+```bash
+node tools/add-relay.mjs --json my-relay.json
+```
+
+```json
+{
+  "title": "Cipher Relay Race",
+  "day": "5",
+  "teamFormUrl": "https://docs.google.com/forms/d/e/XXXX/viewform",
+  "teamCode": "STARSHIP7",
+  "kicker": "Relay · Race",
+  "desc": "A team relay: solve each round's ciphers to unlock the next.",
+  "needed": 3
+}
+```
+
+Optional fields: `slug`, `base` (folder), `introFile`/`introHtml`, `finishTitle`,
+`finishFile`/`finishHtml`. Once scaffolded, add rounds with `add:relay-round`.
+
+Preview at the URL it prints, then commit and push.
+
+---
+
+## 6. Add links to Optional Resources
 
 `course-information/optional-resources.html` is a hand-edited list. Copy an existing
 `<li>` block and swap the `href`, title, and description. Placeholder entries use
@@ -232,7 +300,7 @@ Preview at <http://localhost:8000/slides-recordings/day-N.html>, then commit and
 
 ---
 
-## 6. How navigation works (hand-editing is fine)
+## 7. How navigation works (hand-editing is fine)
 
 `assets/js/nav.js` is the single source of truth; `assets/js/site.js` renders the
 header, dropdowns, footer, and day hubs from it on every page. The generators edit it
@@ -257,6 +325,9 @@ assets/img/instructors/   Instructor photos (homepage + contact page)
 assets/img/scio-logo.svg  White ScioVirtual logo (header + footer)
 assets/css/base.css       Design tokens and site-wide styles
 assets/css/cipher.css     Solver widget styles
+assets/css/relay.css      Relay race styles (home, code gate, finish)
 assets/js/cipher-engine.js  The interactive solver engine
+assets/js/relay.js        Relay runtime (reads each page's relay-config, drives the code gate)
+tools/relaycrypto.mjs     Code→link obfuscation (mirrored, byte-for-byte, in relay.js)
 tools/templates/          The HTML skeletons the generators fill in
 ```
