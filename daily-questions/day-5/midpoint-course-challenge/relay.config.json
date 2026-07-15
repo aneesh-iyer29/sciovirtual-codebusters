@@ -5,5 +5,13 @@
   "finishPath": "/daily-questions/day-5/midpoint-course-challenge/finish/",
   "teamFormUrl": "https://docs.google.com/forms/d/e/1FAIpQLSd7TDAucecBhR8OHKdtBeEzNllL2uIVZHVr7OFjFZUJhcwS4Q/viewform?usp=publish-editor",
   "needed": 3,
-  "rounds": []
+  "rounds": [
+    {
+      "num": 1,
+      "slug": "r1-4d5a02",
+      "path": "/daily-questions/day-5/midpoint-course-challenge/r1-4d5a02/",
+      "needed": 3,
+      "formUrl": "https://docs.google.com/forms/d/e/1FAIpQLSd4IHzjvwmph4zoO5Fw6oK9xwD8W2aHYOavOgOhkeNMg5M5QQ/viewform?usp=dialog"
+    }
+  ]
 }
