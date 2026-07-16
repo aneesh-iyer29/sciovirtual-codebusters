@@ -4,7 +4,11 @@
   "private": true,
   "type": "module",
   "description": "ScioVirtual Advanced Codebusters course site: static, with interactive cipher solvers and a local question generator.",
+  "bin": {
+    "scio": "tools/cli.mjs"
+  },
   "scripts": {
+    "cli": "node tools/cli.mjs",
     "start": "python3 -m http.server 8000",
     "serve": "npx --yes serve -l 8000 .",
     "add:question": "node tools/add-question.mjs",
