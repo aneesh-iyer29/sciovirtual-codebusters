@@ -30,6 +30,30 @@ Open <http://localhost:8000>. The site **must be served over http** (not opened 
 
 ---
 
+## The `scio` CLI  (one front door for everything)
+
+Every generator below is also reachable through a single CLI/TUI:
+
+```bash
+npm run cli                              # interactive menu — pick a task with the arrow keys
+npm run cli -- question --json q.json    # or run any tool directly
+```
+
+Optionally run `npm link` once to get a global `scio` command:
+
+```bash
+scio                  # the menu
+scio question         # same prompts as npm run add:question
+scio hw --dry --json my-homework.json
+scio serve            # serve the site at http://localhost:8000
+```
+
+Commands: `question` (`q`), `page`, `homework` (`hw`), `recording` (`rec`), `relay`,
+`relay-round` (`round`), `serve`. Flags after the command (`--json`, `--dry`, `--force`,
+`--pdf`, `--port`) pass straight through to the underlying tool. `scio help` lists everything.
+
+---
+
 ## Add a new question  (the common task)
 
 ```bash

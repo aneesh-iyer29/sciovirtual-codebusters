@@ -1,8 +1,42 @@
 # Instructor tools: adding questions, pages, and resources
 
 Everything on this site is plain HTML, but you should almost never write it by hand.
-The two generators in this folder create themed pages and wire them into the site
+The generators in this folder create themed pages and wire them into the site
 navigation for you. Run them from the **repo root** with Node 18+.
+
+## The `scio` CLI — start here
+
+All of the tools live behind one front door, `tools/cli.mjs`:
+
+```bash
+npm run cli           # interactive TUI menu: pick a task with ↑/↓ (or 1-7), enter to run
+```
+
+Selecting a task launches its usual prompts; when it finishes (or you Ctrl-C out),
+you're back at the menu. You can also run any tool directly, passing its flags after
+the command name:
+
+```bash
+npm run cli -- question --json my-question.json
+npm run cli -- homework --dry --json my-homework.json
+```
+
+Run `npm link` once and you get a global `scio` command, which is the same thing
+with less typing:
+
+```bash
+scio                  # the menu
+scio question         # new interactive cipher question (alias: q)
+scio page             # new page from any embed (Form, Doc, Slides, video)
+scio homework         # homework assignment on the Homework page (alias: hw)
+scio recording        # "Day N" slides & recording page (alias: rec)
+scio relay            # scaffold a relay race; rounds added separately
+scio relay-round      # add a round at the tail of a relay (alias: round)
+scio serve            # serve the site at http://localhost:8000 (--port to change)
+scio help             # list every command and its flags
+```
+
+The classic `npm run add:*` scripts still work and do exactly the same thing:
 
 ```bash
 npm start             # serve the site at http://localhost:8000 (needed to preview)
@@ -404,6 +438,7 @@ assets/css/cipher.css     Solver widget styles
 assets/css/relay.css      Relay race styles (home, rounds, code gate, finish)
 assets/js/cipher-engine.js  The interactive solver engine
 assets/js/relay.js        Relay runtime (reads each page's relay-config; renders rounds, drives the gate)
+tools/cli.mjs             The `scio` CLI/TUI — the menu + dispatcher over all the tools here
 tools/relaycrypto.mjs     Code→link obfuscation (mirrored, byte-for-byte, in relay.js)
 tools/add-relay.mjs · add-relay-round.mjs  Relay scaffold + round generators
 tools/templates/          The HTML skeletons the generators fill in
