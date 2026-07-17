@@ -222,6 +222,12 @@ export const NAV = [
             "href": "/daily-questions/day-6/walkthrough-3.html",
             "kicker": "Fractionated Morse",
             "desc": "Type your answer under each cipher letter, then check it."
+          },
+          {
+            "label": "Frac Morse Decode Demo",
+            "href": "/daily-questions/day-6/frac-morse-decode-demo.html",
+            "kicker": "Fractionated Morse",
+            "desc": "Type your answer under each cipher letter, then check it."
           }
         ]
       }
