@@ -210,6 +210,12 @@ export const NAV = [
             "href": "/daily-questions/day-6/morse-walkthrough-1.html",
             "kicker": "Fractionated Morse",
             "desc": "Type your answer under each cipher letter, then check it."
+          },
+          {
+            "label": "Walkthrough 2",
+            "href": "/daily-questions/day-6/walkthrough-2.html",
+            "kicker": "Fractionated Morse",
+            "desc": "Type your answer under each cipher letter, then check it."
           }
         ]
       }
