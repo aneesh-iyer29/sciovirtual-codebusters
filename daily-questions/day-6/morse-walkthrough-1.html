@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Morse Walkthrough #1 · ScioVirtual Codebusters</title>
+  <meta name="description" content="Type your answer under each cipher letter, then check it.">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Lato:wght@400;700&family=Space+Mono:wght@400;700&display=swap">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/cipher.css">
+  <script type="module" src="/assets/js/site.js"></script>
+</head>
+<body>
+  <main id="main">
+    <header class="page-head">
+      <div class="wrap">
+        <p class="crumbs"><a href="/">Home</a> / <a href="/daily-questions/day-6/">Day 6</a> / Morse Walkthrough #1</p>
+        <h1>Morse Walkthrough #1</h1>
+        <p class="lead">Type your answer under each cipher letter, then check it.</p>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="wrap">
+        <div data-cipher id="q"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/assets/js/cipher-engine.js"></script>
+  <script>
+    Codebusters.render("#q", {
+      "cipherType": "Fractionated Morse",
+      "questionText": "An explorer's journal mentions a “hidden truth” encoded below. It turns out to be a quote, written in a Fractionated Morse Cipher. You are told that the quote starts with AIR M. What does it say?",
+      "cipherText": "I  T  O  Z  K  P  X  O  U  A  R  C  R  B  I  O  U  V  T  L  X  C  F  X  A  C  P  B  K  A  U  R  F  O  L  J  H  S  B  M  R  T  L  B  A  S  T  C  S  F  T  F  G",
+      "correctAnswer": "Air mattresses are better than the floor when sleeping",
+      "revealKeyword": "FRACTIONS"
+    });
+  </script>
+</body>
+</html>

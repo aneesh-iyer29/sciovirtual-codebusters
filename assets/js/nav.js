@@ -199,6 +199,19 @@ export const NAV = [
             "desc": "Codebusters Relay! Read the syllabus and come to class for instructions. This can only be done in class, and submissions will close right after!"
           }
         ]
+      },
+      {
+        "label": "Day 6",
+        "href": "/daily-questions/day-6/",
+        "kicker": "Day 6 · Fractionated Morse",
+        "children": [
+          {
+            "label": "Morse Walkthrough #1",
+            "href": "/daily-questions/day-6/morse-walkthrough-1.html",
+            "kicker": "Fractionated Morse",
+            "desc": "Type your answer under each cipher letter, then check it."
+          }
+        ]
       }
     ]
   },
