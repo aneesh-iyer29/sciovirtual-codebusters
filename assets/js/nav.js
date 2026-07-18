@@ -206,6 +206,12 @@ export const NAV = [
         "kicker": "Day 6 · Fractionated Morse",
         "children": [
           {
+            "label": "Frac Morse Decode Demo",
+            "href": "/daily-questions/day-6/frac-morse-decode-demo.html",
+            "kicker": "Fractionated Morse",
+            "desc": "Type your answer under each cipher letter, then check it."
+          },
+          {
             "label": "Morse Walkthrough #1",
             "href": "/daily-questions/day-6/morse-walkthrough-1.html",
             "kicker": "Fractionated Morse",
@@ -218,14 +224,8 @@ export const NAV = [
             "desc": "Type your answer under each cipher letter, then check it."
           },
           {
-            "label": "Walkthrough #3",
+            "label": "Walkthrough 3",
             "href": "/daily-questions/day-6/walkthrough-3.html",
-            "kicker": "Fractionated Morse",
-            "desc": "Type your answer under each cipher letter, then check it."
-          },
-          {
-            "label": "Frac Morse Decode Demo",
-            "href": "/daily-questions/day-6/frac-morse-decode-demo.html",
             "kicker": "Fractionated Morse",
             "desc": "Type your answer under each cipher letter, then check it."
           }
