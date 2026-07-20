@@ -234,6 +234,32 @@ export const NAV = [
             "desc": "Type your answer under each cipher letter, then check it."
           }
         ]
+      },
+      {
+        "label": "Day 7",
+        "href": "/daily-questions/day-7/",
+        "kicker": "Day 7 · Checkerboard",
+        "desc": "Checkerboard walkthroughs for Decode and Cryptanalysis",
+        "children": [
+          {
+            "label": "Checkerboard Decode",
+            "href": "/daily-questions/day-7/checkerboard-decode.html",
+            "kicker": "Checkerboard",
+            "desc": "Type your answer under each cipher letter, then check it."
+          },
+          {
+            "label": "Checker Crypt Waklthrough",
+            "href": "/daily-questions/day-7/checker-crypt-waklthrough.html",
+            "kicker": "Checkerboard",
+            "desc": "Type your answer under each cipher letter, then check it."
+          },
+          {
+            "label": "Checkerboard Spaces Walkthrough",
+            "href": "/daily-questions/day-7/checkerboard-spaces-walkthrough.html",
+            "kicker": "Checkerboard",
+            "desc": "Type your answer under each cipher letter, then check it."
+          }
+        ]
       }
     ]
   },
