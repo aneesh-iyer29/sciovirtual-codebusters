@@ -268,6 +268,54 @@ export const NAV = [
     ]
   },
   {
+    "label": "Midpoint Challenge",
+    "href": "/daily-questions/day-5/midpoint-course-challenge/",
+    "children": [
+      {
+        "label": "Challenge Home",
+        "href": "/daily-questions/day-5/midpoint-course-challenge/",
+        "kicker": "Midpoint Challenge",
+        "desc": "The relay is over — but the rounds are all here if you want to try them."
+      },
+      {
+        "label": "Round 1",
+        "href": "/daily-questions/day-5/midpoint-course-challenge/r1-4d5a02/",
+        "kicker": "Relay · Round 1",
+        "desc": "Solve the ciphers to reveal the passwords."
+      },
+      {
+        "label": "Round 2",
+        "href": "/daily-questions/day-5/midpoint-course-challenge/r2-f9f33b/",
+        "kicker": "Relay · Round 2",
+        "desc": "Solve the ciphers to reveal the passwords."
+      },
+      {
+        "label": "Round 3",
+        "href": "/daily-questions/day-5/midpoint-course-challenge/r3-653b15/",
+        "kicker": "Relay · Round 3",
+        "desc": "Solve the ciphers to reveal the passwords."
+      },
+      {
+        "label": "Round 4",
+        "href": "/daily-questions/day-5/midpoint-course-challenge/r4-4d4257/",
+        "kicker": "Relay · Round 4",
+        "desc": "Solve the ciphers to reveal the passwords."
+      },
+      {
+        "label": "Round 5",
+        "href": "/daily-questions/day-5/midpoint-course-challenge/r5-ece4a4/",
+        "kicker": "Relay · Round 5",
+        "desc": "Solve the ciphers to reveal the passwords."
+      },
+      {
+        "label": "Finish Line",
+        "href": "/daily-questions/day-5/midpoint-course-challenge/finish/",
+        "kicker": "Relay · Finish",
+        "desc": "The end of the relay."
+      }
+    ]
+  },
+  {
     "label": "Contact",
     "href": "/contact.html"
   }
