@@ -69,7 +69,9 @@
 .relay-continue { margin-left: auto; }
 
 /* ---- round page ---- */
-.relay-round { max-width: var(--wrap-narrow); }
+/* Questions use the full browser width; prose blocks below stay readable. */
+.relay-round { max-width: none; }
+.relay-submit, .relay-advance, .relay-final-lock { max-width: var(--wrap-narrow); }
 
 /* "view & print the worksheet" button, in the round's header band */
 .relay-pdf-actions { margin: 1.2rem 0 0; }
