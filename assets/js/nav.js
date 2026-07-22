@@ -268,7 +268,7 @@ export const NAV = [
     ]
   },
   {
-    "label": "Midpoint Challenge",
+    "label": "Midpoint",
     "href": "/daily-questions/day-5/midpoint-course-challenge/",
     "children": [
       {
