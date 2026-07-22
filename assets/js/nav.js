@@ -300,6 +300,26 @@ export const NAV = [
             "desc": "Type your answer under each cipher letter, then check it."
           }
         ]
+      },
+      {
+        "label": "Day 8",
+        "href": "/daily-questions/day-8/",
+        "kicker": "Day 8 · Nihilist",
+        "desc": "Nihilist Decode Warmup, and Crypt Walkthrough!",
+        "children": [
+          {
+            "label": "Nihilist Decode Warmup",
+            "href": "/daily-questions/day-8/nihilist-decode-warmup.html",
+            "kicker": "Nihilist",
+            "desc": "Type your answer under each cipher letter, then check it."
+          },
+          {
+            "label": "Nihilist Crypt Walkthrough #2",
+            "href": "/daily-questions/day-8/nihilist-crypt-walkthrough-2.html",
+            "kicker": "Nihilist",
+            "desc": "Type your answer under each cipher letter, then check it."
+          }
+        ]
       }
     ]
   },

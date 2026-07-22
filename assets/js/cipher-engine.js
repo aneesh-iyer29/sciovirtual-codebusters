@@ -180,7 +180,15 @@
     const words = data.cipherText.trim().split(/\s+/);
     words.forEach((word) => {
       const wordDiv = el("div", "cb-word");
-      const units = word.match(/.{1,2}/g) || [];
+      const rawUnits = word.match(/.{1,2}/g) || [];
+      // A "<digit>X" unit folds its digit onto the previous box as a third digit,
+      // so three-digit Nihilist sums (e.g. 55+55=110) stay in one box: "10","3X" -> "103".
+      const units = [];
+      for (const u of rawUnits) {
+        const m = /^(\d)[Xx]$/.exec(u);
+        if (m && units.length) units[units.length - 1] += m[1];
+        else units.push(u);
+      }
       units.forEach((unit) => {
         const g = el("div", "cb-stack");
         const k = keyCell(2); k.setAttribute("aria-label", "keyword digits for " + unit); ctx.keyInputs.push(k); g.appendChild(k);

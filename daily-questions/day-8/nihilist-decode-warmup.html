@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nihilist Decode Warmup · ScioVirtual Codebusters</title>
+  <meta name="description" content="Type your answer under each cipher letter, then check it.">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Lato:wght@400;700&family=Space+Mono:wght@400;700&display=swap">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/cipher.css">
+  <script type="module" src="/assets/js/site.js"></script>
+</head>
+<body>
+  <main id="main">
+    <header class="page-head">
+      <div class="wrap">
+        <p class="crumbs"><a href="/">Home</a> / <a href="/daily-questions/day-8/">Day 8</a> / Nihilist Decode Warmup</p>
+        <h1>Nihilist Decode Warmup</h1>
+        <p class="lead">Type your answer under each cipher letter, then check it.</p>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="wrap">
+        <div data-cipher id="q"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/assets/js/cipher-engine.js"></script>
+  <script>
+    Codebusters.render("#q", {
+      "cipherType": "Nihilist",
+      "questionText": "A riddle is discovered taped under a chemistry lab bench. It's a quote, encrypted as a Nihilist Substitution with a keyword of OPENS and polybius key of LABORING. What does it say?",
+      "cipherText": "3855565364\t 5785645366\t  2972436674\t 5785744664\t 2892523787\t   5953424654\t   268474",
+      "correctAnswer": "Code is the greatest sciovirtual class",
+      "revealKeyword": "WOOHOO"
+    });
+  </script>
+</body>
+</html>
