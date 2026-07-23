@@ -1,0 +1,47 @@
+/* =========================================================================
+   questionpage.css: a multi-question page — several ciphers, a live progress
+   bar, and a global keyword revealed once enough are solved.
+
+   The progress bar reuses the visual language of the relay's bar (relay.css),
+   under its own `qp-` names so the two systems stay independent.
+   ========================================================================= */
+
+/* Questions use the full browser width; the reveal panel stays readable. */
+.questionpage { max-width: none; }
+
+/* live progress — sticks under the header so it's always visible while solving */
+.qp-progress {
+  position: sticky; top: 74px; z-index: 5;
+  background: var(--paper); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: var(--shadow-sm);
+  padding: 1rem 1.2rem; margin-bottom: 2.2rem;
+}
+.qp-progress.is-ready { border-color: var(--teal); background: var(--teal-soft); }
+.qp-progress-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .9rem; margin-bottom: .6rem; }
+.qp-progress-count { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; }
+.qp-progress-note { color: var(--muted); font-size: .92rem; }
+.qp-progress.is-ready .qp-progress-note { color: #147a68; font-weight: 600; }
+.qp-progress-bar { height: 8px; border-radius: 999px; background: var(--lavender-2); overflow: hidden; }
+.qp-progress-bar > span { display: block; height: 100%; background: var(--teal); border-radius: 999px; transition: width .25s ease; }
+
+.qp-q { margin-bottom: 2.6rem; }
+.qp-q .eyebrow { margin-bottom: .8rem; }
+
+/* the keyword reward, hidden until `needed` ciphers are solved */
+.qp-reveal {
+  display: flex; gap: 1rem; align-items: flex-start;
+  max-width: var(--wrap-narrow);
+  margin-top: 2.6rem; padding: 1.5rem 1.7rem;
+  border: 1px solid var(--teal); border-radius: var(--radius);
+  background: var(--teal-soft); box-shadow: var(--shadow-sm);
+}
+.qp-reveal[hidden] { display: none !important; }
+.qp-reveal-ic { font-size: 2rem; line-height: 1.2; flex: none; }
+.qp-reveal-body h2 { margin: 0 0 .3rem; font-size: 1.35rem; }
+.qp-reveal-body p { margin: 0; color: var(--ink-2); }
+.qp-reveal-key {
+  margin-top: .6rem !important;
+  font-family: var(--font-mono, "Space Mono", monospace);
+  font-weight: 700; font-size: 1.5rem; letter-spacing: .06em;
+  color: var(--indigo);
+}

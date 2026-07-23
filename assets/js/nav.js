@@ -318,6 +318,12 @@ export const NAV = [
             "href": "/daily-questions/day-8/nihilist-crypt-walkthrough-2.html",
             "kicker": "Nihilist",
             "desc": "Type your answer under each cipher letter, then check it."
+          },
+          {
+            "label": "Day 8 Personalized Practice set",
+            "href": "/daily-questions/day-8/day-8-practice.html",
+            "kicker": "Practice!",
+            "desc": "Type your answer under each cipher letter, then check it."
           }
         ]
       }

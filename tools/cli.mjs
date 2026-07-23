@@ -35,6 +35,12 @@ const COMMANDS = [
     flags: ["--json <file>    run from a saved answers file (no prompts)"],
   },
   {
+    name: "questionpage", aliases: ["qp"], script: "add-questionpage.mjs",
+    title: "Add a multi-question page",
+    desc: "One page with several ciphers, a progress bar, and a keyword revealed at a threshold",
+    flags: ["--json <file>    run from a saved answers file (no prompts)"],
+  },
+  {
     name: "page", aliases: [], script: "add-page.mjs",
     title: "Add an embed page",
     desc: "New page from a Google Form / Doc / Slides / video link",

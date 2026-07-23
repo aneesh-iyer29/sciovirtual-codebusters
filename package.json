@@ -12,6 +12,7 @@
     "start": "python3 -m http.server 8000",
     "serve": "npx --yes serve -l 8000 .",
     "add:question": "node tools/add-question.mjs",
+    "add:questionpage": "node tools/add-questionpage.mjs",
     "add:relay": "node tools/add-relay.mjs",
     "add:relay-round": "node tools/add-relay-round.mjs",
     "add:page": "node tools/add-page.mjs",

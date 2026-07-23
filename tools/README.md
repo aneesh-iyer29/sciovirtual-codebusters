@@ -27,6 +27,7 @@ with less typing:
 ```bash
 scio                  # the menu
 scio question         # new interactive cipher question (alias: q)
+scio questionpage     # one page, several ciphers, a keyword at a threshold (alias: qp)
 scio page             # new page from any embed (Form, Doc, Slides, video)
 scio homework         # homework assignment on the Homework page (alias: hw)
 scio recording        # "Day N" slides & recording page (alias: rec)
@@ -41,6 +42,7 @@ The classic `npm run add:*` scripts still work and do exactly the same thing:
 ```bash
 npm start             # serve the site at http://localhost:8000 (needed to preview)
 npm run add:question  # new interactive cipher question
+npm run add:questionpage # one page with several ciphers + a keyword revealed at a solve threshold
 npm run add:relay     # scaffold a relay race (home + finish + nav card); rounds added separately
 npm run add:relay-round # add a round (ciphers + submission form + code gate), spliced at the tail
 npm run add:page      # new page from any embed (Form, Doc, Slides, video)
@@ -133,6 +135,64 @@ the ciphertext:
 Use the encoders in `tools/encoders/` (open <http://localhost:8000/tools/encoders/>
 while the site is running). Paste a plaintext quote, pick the cipher and key, and copy
 the generated cipher text into the generator.
+
+### Put several questions on one page (with a keyword at a threshold)
+
+```bash
+npm run add:questionpage   # or: scio questionpage   (alias: qp)
+```
+
+Use this when you want **one page holding several ciphers** — a practice set — instead of
+one cipher per page. It runs the same per-cipher prompts as `add:question`, once per
+question, then asks two page-level things: **how many must be solved** and the **global
+keyword** to reveal when that many are solved. The page shows a sticky **progress bar
+(Solved X / N)** while you work; the moment the threshold is met, the keyword panel appears
+and stays (it never locks back once earned). Each cipher still reveals its own per-question
+keyword on solve, exactly as on a single-question page.
+
+Answer the prompts:
+
+| Prompt | What to enter |
+| --- | --- |
+| How many questions on this page? | e.g. `8` — the tool then loops the cipher prompts that many times |
+| *(per question)* | Same as `add:question`: cipher type, Aristocrat sub-type, prompt, cipher text, answer, per-question reveal keyword (and an image path for `Cryptarithm`) |
+| How many must be solved…? | The threshold (1…N); defaults to **all** of them |
+| Global keyword | The reward shown once the threshold is met |
+| Day number | `1`, `2`, … (a new day auto-creates the day hub, same as `add:question`) |
+| Day card kicker / description | **Only for a brand-new day** |
+| Title / slug / intro / nav kicker | How the page is named and linked |
+
+It writes `daily-questions/day-<n>/<slug>.html`, creates the day hub if new, and adds the
+link under **Daily Questions › Day N** in `assets/js/nav.js` — the same wiring as
+`add:question`. The page is driven by `assets/js/questionpage.js` (styled by
+`assets/css/questionpage.css`); the ciphers themselves use the shared cipher-engine. Cipher
+answers and the keyword are stored base64-obfuscated in the page (not plain text), the same
+light obfuscation the relay rounds use — enough to stop casual view-source, not a determined one.
+
+#### Batch mode (no prompts)
+
+```bash
+node tools/add-questionpage.mjs --json my-page.json
+```
+
+```json
+{
+  "day": "6",
+  "title": "Day 6 practice set",
+  "slug": "day-6-practice",
+  "needed": 6,
+  "keyword": "STARFLEET",
+  "questions": [
+    { "cipherType": "Aristocrat", "aristoType": "K1", "questionText": "…", "cipherText": "…", "correctAnswer": "…", "revealKeyword": "ONE" },
+    { "cipherType": "Caesar", "questionText": "…", "cipherText": "…", "correctAnswer": "…", "revealKeyword": "TWO" }
+  ]
+}
+```
+
+(The `questions` array above is abbreviated — list all of them; here `needed: 6` assumes
+eight questions.) `needed` defaults to all of the questions and is clamped to `1…length`;
+`keyword` is required. Each question takes the same
+fields as an `add:question` payload (including `image`/`imageAlt` for a `Cryptarithm`).
 
 ---
 
@@ -437,6 +497,8 @@ assets/css/base.css       Design tokens and site-wide styles
 assets/css/cipher.css     Solver widget styles
 assets/css/relay.css      Relay race styles (home, rounds, code gate, finish)
 assets/js/cipher-engine.js  The interactive solver engine
+assets/js/questionpage.js Multi-question runtime (renders ciphers, progress bar, keyword-at-threshold)
+assets/css/questionpage.css  Multi-question page styles (progress bar + keyword reveal)
 assets/js/relay.js        Relay runtime (reads each page's relay-config; renders rounds, drives the gate)
 tools/cli.mjs             The `scio` CLI/TUI — the menu + dispatcher over all the tools here
 tools/relaycrypto.mjs     Code→link obfuscation (mirrored, byte-for-byte, in relay.js)
