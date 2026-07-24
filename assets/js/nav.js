@@ -330,6 +330,20 @@ export const NAV = [
             "desc": "Type your answer under each cipher letter, then check it."
           }
         ]
+      },
+      {
+        "label": "Day 9",
+        "href": "/daily-questions/day-9/",
+        "kicker": "Day 9 · Final Course Challenge",
+        "desc": "Time for the final challenge! Join up on class for an escape room today!",
+        "children": [
+          {
+            "label": "They are coming.",
+            "href": "/daily-questions/day-9/they-are-coming/",
+            "kicker": "Escape Room!",
+            "desc": "A team escape: crack each room's puzzle to unlock the next."
+          }
+        ]
       }
     ]
   },

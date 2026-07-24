@@ -15,6 +15,8 @@
     "add:questionpage": "node tools/add-questionpage.mjs",
     "add:relay": "node tools/add-relay.mjs",
     "add:relay-round": "node tools/add-relay-round.mjs",
+    "add:escape": "node tools/add-escape.mjs",
+    "add:escape-round": "node tools/add-escape-round.mjs",
     "add:page": "node tools/add-page.mjs",
     "add:homework": "node tools/add-homework.mjs",
     "add:recording": "node tools/add-recording.mjs"

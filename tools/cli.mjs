@@ -79,6 +79,18 @@ const COMMANDS = [
     flags: ["--json <file>    run from a saved answers file (no prompts)"],
   },
   {
+    name: "escape", aliases: [], script: "add-escape.mjs",
+    title: "Scaffold an escape game",
+    desc: "Home + finish pages, config, and a day-hub card (rooms added separately)",
+    flags: ["--json <file>    run from a saved answers file (no prompts)"],
+  },
+  {
+    name: "escape-round", aliases: ["room"], script: "add-escape-round.mjs",
+    title: "Add an escape room",
+    desc: "Splice a room (ciphers + always-open form + password gate) at the tail of an escape",
+    flags: ["--json <file>    run from a saved answers file (no prompts)"],
+  },
+  {
     name: "serve", aliases: [], run: serve,
     title: "Serve the site",
     desc: "Local preview at http://localhost:8000 (Ctrl-C to stop)",

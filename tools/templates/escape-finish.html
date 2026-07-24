@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{TITLE}} · ScioVirtual Codebusters</title>
+  <meta name="description" content="{{DESC}}">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Lato:wght@400;700&family=Space+Mono:wght@400;700&display=swap">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/relay.css">
+  <script type="module" src="/assets/js/site.js"></script>
+</head>
+<body>
+  <main id="main">
+    <header class="page-head">
+      <div class="wrap">
+        <p class="crumbs">{{CRUMBS}}</p>
+        <h1>{{HEADING}}</h1>
+        <p class="lead">{{LEAD}}</p>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="wrap relay-finish">
+        <p class="relay-trophy" aria-hidden="true">🔓</p>
+        <div class="prose" style="margin-inline:auto;">
+{{BODY}}
+        </div>
+        <div class="callout teal">
+          <p><b>One last check:</b> make sure you submitted the final room's form. Your last form submission is your official escape — that's what decides the time bonus.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script id="escape-config" type="application/json">{{CONFIG_JSON}}</script>
+  <script src="/assets/js/escape.js"></script>
+</body>
+</html>
