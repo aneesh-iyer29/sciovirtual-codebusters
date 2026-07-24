@@ -88,6 +88,14 @@
     box.type = "text"; box.autocomplete = "off"; box.autocapitalize = "characters";
     box.spellcheck = false; box.setAttribute("aria-label", opts.label || "Password");
     if (opts.hint) box.placeholder = opts.hint;
+    // Passwords are case-insensitive: force the box to CAPS as you type (and we
+    // uppercase again on submit), so "french", "French" and "FRENCH" all match.
+    box.style.textTransform = "uppercase";
+    box.addEventListener("input", () => {
+      const s = box.selectionStart, e = box.selectionEnd;
+      box.value = box.value.toUpperCase();
+      box.setSelectionRange(s, e);
+    });
     const btn = el("button", "btn btn-primary");
     btn.type = "submit"; btn.textContent = "Unlock";
     row.append(box, btn);
@@ -97,7 +105,7 @@
 
     form.addEventListener("submit", (e) => {
       e.preventDefault();
-      const code = box.value.trim();
+      const code = box.value.trim().toUpperCase();
       if (!code) {
         status.className = "relay-gate-status";
         status.textContent = "Type the password, then press Unlock.";

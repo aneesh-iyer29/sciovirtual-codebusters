@@ -43,6 +43,9 @@ const FINISH_TPL = join(ROOT, "tools/templates/escape-finish.html");
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const fill = (tpl, map) => tpl.replace(/\{\{(\w+)\}\}/g, (_, k) => (k in map ? map[k] : ""));
 const jsonInline = (o) => JSON.stringify(o).replace(/</g, "\\u003c");
+// Passwords are case-insensitive: normalize (trim + uppercase) before encrypting,
+// exactly as escape.js does before decrypting, so any casing a team types matches.
+const normPw = (s) => String(s).trim().toUpperCase();
 const indent = (html, n) => String(html).trim().split("\n").map((l) => " ".repeat(n) + l).join("\n");
 const daySafeOf = (d) => String(d).replace(/[^A-Za-z0-9]/g, "") || "1";
 const dayHubExists = (daySafe) => existsSync(join(ROOT, `daily-questions/day-${daySafe}`, "index.html"));
@@ -190,7 +193,7 @@ async function main() {
 
   // ---- home page: gate ships the finish link encrypted under the team password ----
   const homeCrumbs = `<a href="/">Home</a> / <a href="/daily-questions/">Daily Questions</a> / <a href="${dayHref}">${esc(dayLabel)}</a> / ${esc(f.title)}`;
-  const homeCfg = { role: "home", title: f.title, teamFormUrl: f.teamFormUrl, gate: { enc: enc(finishHref, f.teamCode) } };
+  const homeCfg = { role: "home", title: f.title, teamFormUrl: f.teamFormUrl, gate: { enc: enc(finishHref, normPw(f.teamCode)) } };
   const homeHtml = fill(await readFile(HOME_TPL, "utf8"), {
     TITLE: esc(f.title), DESC: esc(f.desc), CRUMBS: homeCrumbs,
     HEADING: esc(f.title),
@@ -268,7 +271,7 @@ async function main() {
   console.log(`  ✓ Linked   Daily Questions › ${dayLabel} › ${f.title}`);
   console.log(`\n  Structure: home → finish  (add rooms with  npm run add:escape-round)`);
   console.log(`\n  Next steps`);
-  console.log(`   • On the registration form, set the confirmation message to reveal the password:  ${f.teamCode}`);
+  console.log(`   • On the registration form, set the confirmation message to reveal the password:  ${normPw(f.teamCode)}  (case-insensitive)`);
   console.log(`   • Turn OFF "edit after submit" on that form.`);
   console.log(`\n  Preview:   http://localhost:8000${homeHref}`);
   console.log(`  (run  npm start  to serve locally, then commit + push)\n`);

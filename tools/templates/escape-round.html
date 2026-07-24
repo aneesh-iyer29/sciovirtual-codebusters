@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{TITLE}} · ScioVirtual Codebusters</title>
+  <meta name="description" content="{{DESC}}">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Lato:wght@400;700&family=Space+Mono:wght@400;700&display=swap">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/cipher.css">
+  <link rel="stylesheet" href="/assets/css/relay.css">
+  <script type="module" src="/assets/js/site.js"></script>
+</head>
+<body>
+  <main id="main">
+    <header class="page-head">
+      <div class="wrap">
+        <p class="crumbs">{{CRUMBS}}</p>
+        <h1>{{HEADING}}</h1>
+        <p class="lead">{{LEAD}}</p>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="wrap relay-round">
+        <div class="relay-questions" data-escape-questions>
+          <noscript>This room needs JavaScript enabled.</noscript>
+        </div>
+
+        <div class="relay-submit">
+          <h2>Submit your answers</h2>
+          <p>Enter your answers on the form below whenever you're ready — the form stays open the whole time. Your confirmation screen shows the <b>password</b> that opens the door to the next room.</p>
+          <p class="relay-submit-actions">
+            <a class="btn btn-primary" href="{{FORM_URL}}" target="_blank" rel="noopener">Open the form in a new tab ↗</a>
+          </p>
+{{FORM_EMBED}}
+        </div>
+
+        <div class="relay-advance">
+          <h2>Unlock the next room</h2>
+          <p>Cracked it? Type the room's password to open the door. The box stays open the whole time — enter it the moment you figure it out.</p>
+          <div class="relay-gate" data-escape-gate></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script id="escape-config" type="application/json">{{CONFIG_JSON}}</script>
+  <script src="/assets/js/cipher-engine.js"></script>
+  <script src="/assets/js/escape.js"></script>
+</body>
+</html>

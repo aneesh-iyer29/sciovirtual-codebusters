@@ -4,5 +4,12 @@
   "homePath": "/daily-questions/day-9/they-are-coming/",
   "finishPath": "/daily-questions/day-9/they-are-coming/finish/",
   "teamFormUrl": "https://docs.google.com/forms/d/e/1FAIpQLSeFhD4QJSy9e-YE2wcCdE2ecevtTxPL37T_r-DmqBZ8-efBIA/viewform?usp=publish-editor",
-  "rounds": []
+  "rounds": [
+    {
+      "num": 1,
+      "slug": "room1-dc74d7",
+      "path": "/daily-questions/day-9/they-are-coming/room1-dc74d7/",
+      "formUrl": "https://docs.google.com/forms/d/e/1FAIpQLScGbU_2IVv1LYmDe7IYpT7wT2hQi4IKgUBsCYH6m3l65Y8G0w/viewform"
+    }
+  ]
 }
